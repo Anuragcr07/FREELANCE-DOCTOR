@@ -1,7 +1,8 @@
 import React from 'react';
-
+import header from './Header';
 const DashboardCard = ({ title, value, subtitle, icon, color }) => {
   return (
+   
     <div className={`p-6 rounded-lg text-white ${color}`}>
       <div className="flex justify-between items-start">
         <div>

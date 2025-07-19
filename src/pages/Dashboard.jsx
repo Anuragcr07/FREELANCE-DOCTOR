@@ -3,10 +3,12 @@ import DashboardCard from '../components/DashboardCard';
 import QuickActions from '../components/QuickActions';
 import RecentActivity from '../components/RecentActivity';
 import { FiArchive, FiAlertTriangle, FiDollarSign, FiUsers } from 'react-icons/fi';
+import Header from '../components/Header'; // Assuming you have a Header component
 
 const Dashboard = () => {
   return (
     <div className="p-6 bg-gray-50 flex-1 h-screen overflow-y-auto">
+      <Header />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <DashboardCard
           title="Total Medicines"
