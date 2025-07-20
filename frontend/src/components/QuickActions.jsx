@@ -17,7 +17,7 @@ const QuickActions = () => {
           <FiEdit className="mr-2" /> Analyze Symptoms
         </button>
         <button className="flex items-center justify-center p-4 bg-white border border-gray-200 rounded-lg" onClick={() => {
-          navigate('/medicine-db');
+          navigate('/inventory');
         }}>
           <FiCamera className="mr-2" /> Scan Medicine
         </button>

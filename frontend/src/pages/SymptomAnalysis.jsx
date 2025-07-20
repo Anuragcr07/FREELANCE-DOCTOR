@@ -1,7 +1,9 @@
 import React from 'react';
 import { FiBarChart2, FiFileText, FiArchive, FiDollarSign, FiHeart, FiUser, FiSearch } from 'react-icons/fi';
 import Header from '../components/Header'; // Assuming you have a Header component
+import { useNavigate } from 'react-router-dom'; 
 const SymptomAnalysis = () => {
+    const navigate = useNavigate();
   return (
     <div className="bg-slate-50 min-h-screen font-sans">
       {/* Header */}
@@ -10,19 +12,19 @@ const SymptomAnalysis = () => {
       {/* Navigation Tabs */}
       <nav className="px-4 pt-4">
         <div className="bg-white p-2 rounded-lg shadow-sm flex items-center space-x-2">
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100">
+          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/')}>
             <FiBarChart2 className="mr-2" /> Dashboard
           </button>
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100">
+          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/symptom-analysis')}>
             <FiFileText className="mr-2" /> Symptom Analysis
           </button>
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100">
+          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/inventory')}>
             <FiArchive className="mr-2" /> Inventory
           </button>
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100">
+          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/revenue')}>
             <FiDollarSign className="mr-2" /> Revenue
           </button>
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100">
+          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/medicine-db')}>
             <FiHeart className="mr-2" /> Medicine DB
           </button>
         </div>
