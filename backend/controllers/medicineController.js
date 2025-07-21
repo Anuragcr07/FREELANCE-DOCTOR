@@ -1,8 +1,6 @@
 const Medicine = require('../models/medicineModel');
 
-// @desc    Add a new medicine
-// @route   POST /api/inventory/add
-// @access  Public
+
 const addMedicine = async (req, res) => {
   try {
     const { 
@@ -34,9 +32,7 @@ const addMedicine = async (req, res) => {
   }
 };
 
-// @desc    Get all medicines
-// @route   GET /api/inventory
-// @access  Public
+
 const getAllMedicines = async (req, res) => {
   try {
     const medicines = await Medicine.find({});
@@ -46,12 +42,9 @@ const getAllMedicines = async (req, res) => {
   }
 };
 
-// @desc    Get low stock medicines
-// @route   GET /api/inventory/low-stock
-// @access  Public
+
 const getLowStockMedicines = async (req, res) => {
   try {
-    // Find medicines where quantity is less than or equal to minStock
     const lowStockMedicines = await Medicine.find({ $expr: { $lte: ['$quantity', '$minStock'] } });
     res.json(lowStockMedicines);
   } catch (error) {

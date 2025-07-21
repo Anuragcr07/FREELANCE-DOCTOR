@@ -9,11 +9,12 @@ import {
   FiArrowDown,
   FiCalendar,
   FiDownload,
+  FiLink
 } from 'react-icons/fi';
-import Header from '../components/Header'; // Assuming you have a Header component
+import Header from '../components/Header'; 
 import { useNavigate } from 'react-router-dom';
 
-// Mock data for demonstration
+
 const topMedicines = [
   { rank: 1, name: 'Paracetamol 500mg', sold: '1824 units sold', revenue: '₹45,600', change: '+12%', changeType: 'increase' },
   { rank: 2, name: 'Amoxicillin 250mg', sold: '760 units sold', revenue: '₹34,200', change: '+8%', changeType: 'increase' },
@@ -34,7 +35,6 @@ const Revenue = () => {
   const navigate = useNavigate();
   return (
     <div className="bg-slate-100 min-h-screen font-sans">
-      {/* Header section can be refactored into a common Layout component */}
         <Header />
       {/* Navigation Tabs */}
       <nav className="px-4 pt-4">
@@ -54,22 +54,23 @@ const Revenue = () => {
           <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/medicine-db')}>
             <FiHeart className="mr-2" /> Medicine DB
           </button>
+          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/patient-details')}>
+           <FiLink className="mr-2" /> Patient Details
+            </button>
         </div>
       </nav>
 
+
       {/* Main Content */}
       <main className="p-4 space-y-6">
-        {/* Revenue Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <StatCard title="Today's Revenue" value="₹15,420" change="+25.0% from yesterday" icon={<FiDollarSign />} />
           <StatCard title="This Week" value="₹89,560" change="+14.2% from last week" icon={<FiCalendar />} />
           <StatCard title="This Month" value="₹345,600" change="+15.7% from last month" icon={<FiFileText />} />
         </div>
 
-        {/* Revenue Trends, Top Medicines, and Recent Transactions Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
-                 {/* Daily Revenue Trends */}
                 <section className="bg-white p-6 rounded-lg shadow-sm">
                     <div className="border-b border-slate-200 mb-4">
                         <div className="flex space-x-1">
@@ -82,7 +83,6 @@ const Revenue = () => {
                         <h3 className="text-xl font-bold text-slate-800">Daily Revenue Trends (This Week)</h3>
                         <p className="text-slate-500 mb-6">Revenue and transaction count by day</p>
                         <div className="h-64 flex items-end justify-between space-x-2">
-                          {/* Simplified static bar chart */}
                           <div className="w-full bg-blue-500 rounded-t-md" style={{height: '55%'}}></div>
                           <div className="w-full bg-blue-500 rounded-t-md" style={{height: '65%'}}></div>
                           <div className="w-full bg-blue-500 rounded-t-md" style={{height: '60%'}}></div>
@@ -93,7 +93,6 @@ const Revenue = () => {
                         </div>
                     </div>
                 </section>
-                {/* Top Performing Medicines */}
                 <section className="bg-white p-6 rounded-lg shadow-sm">
                   <h3 className="text-xl font-bold text-slate-800 mb-1">Top Performing Medicines</h3>
                   <p className="text-slate-500 mb-6">Best selling medicines by revenue this month</p>
@@ -105,7 +104,6 @@ const Revenue = () => {
                 </section>
             </div>
             
-            {/* Recent Transactions */}
             <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow-sm">
                 <div className="flex justify-between items-center mb-6">
                     <div>
@@ -140,7 +138,6 @@ const Revenue = () => {
   );
 };
 
-// Sub-components for cleaner structure
 const StatCard = ({ title, value, change, icon }) => (
   <div className="bg-white p-5 rounded-lg shadow-sm flex justify-between items-start">
     <div>

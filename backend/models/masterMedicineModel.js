@@ -6,14 +6,12 @@ const masterMedicineSchema = new mongoose.Schema({
   genericName: { type: String, required: true },
   description: { type: String },
   category: { type: String, required: true },
-  indications: { type: String }, // What it's used for
+  indications: { type: String }, 
   dosage: { type: String },
   sideEffects: { type: String },
-  isRx: { type: Boolean, default: false }, // Is it a prescription drug?
-  // You can add more fields like contraindications, storage instructions, etc.
+  isRx: { type: Boolean, default: false }, 
 });
 
-// Create a text index on multiple fields for efficient searching
 masterMedicineSchema.index({ 
   name: 'text', 
   genericName: 'text', 

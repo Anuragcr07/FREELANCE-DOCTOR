@@ -3,7 +3,7 @@ import DashboardCard from '../components/DashboardCard';
 import QuickActions from '../components/QuickActions';
 import RecentActivity from '../components/RecentActivity';
 import { FiArchive, FiAlertTriangle, FiDollarSign, FiUsers } from 'react-icons/fi';
-import Header from '../components/Header'; // Assuming you have a Header component
+import Header from '../components/Header'; 
 
 const Dashboard = () => {
   return (

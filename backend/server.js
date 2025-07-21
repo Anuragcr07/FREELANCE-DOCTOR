@@ -7,11 +7,11 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
+
 app.use(cors());
 app.use(express.json());
 
-// Routes
+
 const medicineRoutes = require('./routes/medicineRoutes');
 app.use('/api/inventory', medicineRoutes);
 
@@ -22,6 +22,9 @@ app.use('/api/medicines', masterMedicineRoutes);
 
 const symptomRoutes = require('./routes/symptomRoutes');
 app.use('/api/symptoms', symptomRoutes);
+
+const patientRoutes = require('./routes/patients');
+app.use('/api/patients', patientRoutes);
 // Database Connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,

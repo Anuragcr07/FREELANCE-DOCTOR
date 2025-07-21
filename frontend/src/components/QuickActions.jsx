@@ -11,7 +11,6 @@ const QuickActions = () => {
       <p className="text-sm text-gray-500 mb-4">Frequently used functions for efficient workflow</p>
       <div className="grid grid-cols-2 gap-4">
         <button className="flex items-center justify-center p-4 bg-white border border-gray-200 rounded-lg" onClick={() => {
-          // This should ideally navigate to a symptom analysis page
           navigate('/symptom-analysis');
         }}>
           <FiEdit className="mr-2" /> Analyze Symptoms
@@ -22,7 +21,6 @@ const QuickActions = () => {
           <FiCamera className="mr-2" /> Scan Medicine
         </button>
         <button className="flex items-center justify-center p-4 bg-white border border-gray-200 rounded-lg" onClick={() => {
-          // This should ideally navigate to a revenue view page
           navigate('/revenue');
         }}>
           <FiTrendingUp className="mr-2" /> View Revenue
@@ -31,6 +29,11 @@ const QuickActions = () => {
           navigate('/medicine-db');
         }}>
           <FiSearch className="mr-2" /> Search Medicine
+        </button>
+        <button className="flex items-center justify-center p-4 bg-white border border-gray-200 rounded-lg" onClick={() => {
+          navigate('/patient-details');
+        }}>
+          <FiSearch className="mr-2" /> View Patient Details
         </button>
       </div>
     </div>

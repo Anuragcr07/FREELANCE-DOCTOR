@@ -7,11 +7,9 @@ const analyzeSymptoms = async (req, res) => {
         return res.status(400).json({ message: 'Symptoms are required.' });
     }
 
-    // A simple NLP approach: split the symptoms string into keywords
     const keywords = symptoms.toLowerCase().split(/\s+/);
 
     try {
-        // Find medicines where the category or name contains any of the keywords
         const suggestedMedicines = await Inventory.find({
             $or: [
                 { category: { $in: keywords.map(k => new RegExp(k, 'i')) } },

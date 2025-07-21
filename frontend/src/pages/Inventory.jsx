@@ -33,7 +33,7 @@ const Inventory = () => {
   });
   const [searchQuery, setSearchQuery] = useState('');
 
-  const API_URL = '/api/inventory'; // Your backend URL
+  const API_URL = '/api/inventory'; 
 
   useEffect(() => {
     fetchInventory();
@@ -67,9 +67,9 @@ const Inventory = () => {
     try {
       await axios.post(`${API_URL}/add`, formData);
       alert('Medicine added successfully!');
-      fetchInventory(); // Refresh inventory list
-      fetchLowStockAlerts(); // Refresh low stock alerts
-      setFormData({ // Reset form
+      fetchInventory(); 
+      fetchLowStockAlerts(); 
+      setFormData({ 
         medicineName: '', manufacturer: '', batchNumber: '',
         expiryDate: '', quantity: '', price: '', category: '', minStock: '',
       });
@@ -90,7 +90,7 @@ const Inventory = () => {
     <div className="w-full min-h-screen bg-slate-50 font-sans">
       <Header />
 
-      {/* Navigation Tabs */}
+      
       <nav className="px-4 pt-4">
         <div className="bg-white p-2 rounded-lg shadow-sm flex items-center space-x-2">
           <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/')}>
@@ -108,6 +108,9 @@ const Inventory = () => {
           <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/medicine-db')}>
             <FiLink className="mr-2" /> Medicine DB
           </button>
+           <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/patient-details')}>
+                                  <FiLink className="mr-2" /> Patient Details
+               </button>
         </div>
       </nav>
 
