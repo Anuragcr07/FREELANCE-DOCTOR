@@ -10,7 +10,8 @@ import {
   FiPlus,
   FiSearch,
   FiBox,
-  FiCalendar
+  FiCalendar,
+  FiLink
 } from 'react-icons/fi';
 import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
@@ -77,6 +78,7 @@ const Inventory = () => {
       alert('Failed to add medicine.');
     }
   };
+  
 
   const filteredInventory = inventory.filter(item =>
     item.medicineName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -85,13 +87,28 @@ const Inventory = () => {
   );
 
   return (
-    <div className="bg-slate-50 min-h-screen font-sans">
-      {/* Header */}
+    <div className="w-full min-h-screen bg-slate-50 font-sans">
       <Header />
 
-      {/* Navigation Tabs (No changes needed here) */}
+      {/* Navigation Tabs */}
       <nav className="px-4 pt-4">
-        {/* ... */}
+        <div className="bg-white p-2 rounded-lg shadow-sm flex items-center space-x-2">
+          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/')}>
+            <FiBarChart2 className="mr-2" /> Dashboard
+          </button>
+          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/symptom-analysis')}>
+            <FiFileText className="mr-2" /> Symptom Analysis
+          </button>
+          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/inventory')}>
+            <FiArchive className="mr-2" /> Inventory
+          </button>
+          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/revenue')}>
+            <FiDollarSign className="mr-2" /> Revenue
+          </button>
+          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/medicine-db')}>
+            <FiLink className="mr-2" /> Medicine DB
+          </button>
+        </div>
       </nav>
 
       <main className="p-4 space-y-6">
@@ -116,7 +133,13 @@ const Inventory = () => {
 
         {/* Add Medicine Form */}
         <section className="bg-white p-8 rounded-lg shadow-sm">
-          {/* ... */}
+          <div className="flex items-center mb-6">
+            <FiPlus className="h-7 w-7 text-slate-500 mr-3" />
+            <div>
+                <h2 className="text-2xl font-bold text-slate-800">Add New Medicine</h2>
+                <p className="text-slate-500">Fill in the details to add a new item to the inventory</p>
+            </div>
+          </div>
           <form onSubmit={handleFormSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Medicine Name */}

@@ -1,45 +1,73 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  FiBarChart2, FiFileText, FiArchive, FiDollarSign, 
-  FiLink, FiSearch, FiFilter, FiChevronDown, FiCheckCircle 
+  FiBarChart2, 
+  FiFileText, 
+  FiArchive, 
+  FiDollarSign, 
+  FiLink,
+  FiSearch,
+  FiBookOpen,
+  FiTag
 } from 'react-icons/fi';
-import Header from '../components/Header'; // Adjust path as needed
-// Assuming you have a CSS file for styles
+import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
-
-// ✅ Sample mock search data
-const searchResults = [
-  {
-    name: "Paracetamol",
-    genericName: "Acetaminophen",
-    tags: [
-      { text: "Pain Relief", type: "category" },
-      { text: "In Stock", type: "status" }
-    ],
-    indications: "Fever, mild to moderate pain",
-    price: "24.50",
-    stock: "Available: 52 strips",
-    isRx: false
-  },
-  {
-    name: "Amoxicillin",
-    genericName: "Amoxicillin Trihydrate",
-    tags: [
-      { text: "Antibiotic", type: "category" },
-      { text: "Prescription", type: "warning" },
-      { text: "In Stock", type: "status" }
-    ],
-    indications: "Bacterial infections",
-    price: "45.00",
-    stock: "Available: 30 boxes",
-    isRx: true
-  }
-];
+import axios from 'axios';
 
 const MedicineDB = () => {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [displayedMedicines, setDisplayedMedicines] = useState([]);
+  const [initialInventory, setInitialInventory] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // --- NEW: Fetch all inventory items on initial page load ---
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      setIsLoading(true);
+      try {
+        // Call the new backend route
+        const response = await axios.get('/api/medicines/all');
+        setInitialInventory(response.data);
+        setDisplayedMedicines(response.data); // Display all medicines initially
+      } catch (error) {
+        console.error("Error fetching initial medicine list:", error);
+        alert('Failed to load medicine database.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchInitialData();
+  }, []); // Empty dependency array means this runs only once on mount
+
+  // --- UPDATED: Handle search functionality ---
+  useEffect(() => {
+    const performSearch = async (query) => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(`/api/medicines/search?q=${query}`);
+        setDisplayedMedicines(response.data); // Display search results
+      } catch (error) {
+        console.error("Error searching medicines:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Use a timer to debounce the search, preventing API calls on every keystroke
+    const timerId = setTimeout(() => {
+      if (searchQuery.trim() !== '') {
+        performSearch(searchQuery);
+      } else {
+        // If the search bar is cleared, show the initial full list again
+        setDisplayedMedicines(initialInventory);
+      }
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(timerId);
+  }, [searchQuery, initialInventory]); // Rerun when query or initial list changes
+
   return (
-    <div className="w-full h-screen bg-slate-50 font-sans ">
+    <div className="w-full min-h-screen bg-slate-50 font-sans">
       <Header />
 
       {/* Navigation Tabs */}
@@ -57,102 +85,85 @@ const MedicineDB = () => {
           <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/revenue')}>
             <FiDollarSign className="mr-2" /> Revenue
           </button>
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/medicine-db')}>
+          <button className="flex items-center justify-center w-full px-4 py-2 text-white bg-slate-800 rounded-md" onClick={() => navigate('/medicine-db')}>
             <FiLink className="mr-2" /> Medicine DB
           </button>
         </div>
       </nav>
 
-      {/* Main Content */}
-      <main className="p-4">
-        {/* Medicine Search */}
-        <section className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex items-center mb-4">
-            <FiLink className="h-7 w-7 text-blue-600 mr-3" />
-            <div>
-              <h2 className="text-2xl font-bold text-slate-800">Medicine Database</h2>
-              <p className="text-slate-500">Search and explore comprehensive medicine information and inventory</p>
+      <main className="p-4 space-y-6">
+        {/* Master Medicine Database Search Section */}
+        <section className="bg-white p-8 rounded-lg shadow-sm">
+          <div className="mb-6">
+            <div className="flex items-center mb-2">
+              <FiBookOpen className="h-7 w-7 text-blue-600 mr-3" />
+              <h2 className="text-2xl font-bold text-slate-800">Medicine Database Search</h2>
             </div>
+            <p className="text-slate-500">Search the master database for medicine details, indications, and stock status.</p>
           </div>
-          <div className="flex items-center space-x-4">
-            <div className="relative flex-grow">
-              <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input 
-                type="text" 
-                placeholder="Search by medicine name, generic name, or indication..."
-                className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <button className="flex items-center px-4 py-3 text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50">
-              <FiFilter className="mr-2 text-slate-500" />
-              All Categories
-              <FiChevronDown className="ml-2 text-slate-500" />
-            </button>
+          <div className="relative mb-6">
+            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input 
+              type="text" 
+              placeholder="Search by name, generic name, category, or indication..."
+              className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-lg"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
-        </section>
-
-        {/* Search Results */}
-        <section className="bg-white p-6 mt-4 rounded-lg shadow-sm">
-          <h2 className="text-2xl font-bold text-slate-800 mb-6">Search Results ({searchResults.length})</h2>
+            
+          {/* Results Area */}
           <div className="space-y-4">
-            {searchResults.map((med, index) => (
-              <MedicineResultItem key={index} medicine={med} />
-            ))}
+            {isLoading ? (
+              <p className="text-center text-slate-500 py-4">Loading Medicines...</p>
+            ) : displayedMedicines.length > 0 ? (
+              displayedMedicines.map(med => (
+                <div key={med._id} className="border border-slate-200 rounded-lg p-4 transition-all hover:shadow-md hover:border-blue-200">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-800 mr-3">{med.name}</h3>
+                      {med.genericName !== 'N/A' && <p className="text-sm text-slate-500">{med.genericName}</p>}
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                       {med.price !== null ? (
+                          <p className="text-lg font-bold text-green-600">
+                            ₹{med.price} <span className="text-sm font-normal text-slate-500">per unit</span>
+                          </p>
+                        ) : (
+                          <p className="text-sm font-semibold text-slate-400">Price not set</p>
+                        )}
+                       {med.stock > 0 ? (
+                          <span className="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-1 rounded-full mt-1">
+                            {med.stock} units in stock
+                          </span>
+                        ) : (
+                          <span className="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-1 rounded-full mt-1">
+                            Out of Stock
+                          </span>
+                        )}
+                    </div>
+                  </div>
+                  <div className="text-sm text-slate-600 space-y-1 mt-2">
+                    {med.indications !== 'N/A' && <p><span className="font-semibold">Indications:</span> {med.indications}</p>}
+                    <p>
+                        <span className="font-semibold">Category:</span> 
+                        <span className="ml-2 inline-flex items-center bg-gray-100 text-gray-800 text-xs font-medium px-2 py-0.5 rounded">
+                            <FiTag className="mr-1"/>{med.category || 'N/A'}
+                        </span>
+                    </p>
+                    {med.isRx && <p className="font-semibold text-blue-600">Prescription (Rx) Required</p>}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-slate-500 py-4">
+                {searchQuery ? "No medicines found matching your query." : "No medicines in inventory."}
+              </p>
+            )}
           </div>
         </section>
       </main>
     </div>
-  );
-};
-
-const MedicineResultItem = ({ medicine }) => (
-  <div className="border border-slate-200 rounded-lg p-5 hover:border-blue-500 hover:bg-slate-50 transition-colors">
-    <div className="flex justify-between items-start">
-      <div>
-        <div className="flex items-center mb-1">
-          <h3 className="text-xl font-bold text-slate-800">{medicine.name}</h3>
-          {medicine.isRx && (
-            <span className="ml-3 text-xs font-semibold text-slate-600 bg-slate-200 px-2 py-0.5 rounded-md">Rx</span>
-          )}
-        </div>
-        <p className="text-slate-500 mb-3">{medicine.genericName}</p>
-        <div className="flex items-center flex-wrap gap-2 mb-3">
-          {medicine.tags.map((tag, index) => (
-            <Tag key={index} text={tag.text} type={tag.type} />
-          ))}
-        </div>
-        <p className="text-sm text-slate-600"><span className="font-semibold">Indications:</span> {medicine.indications}</p>
-      </div>
-      <div className="text-right flex-shrink-0 ml-4">
-        <p className="text-xl font-bold text-green-600">₹{medicine.price}</p>
-        <p className="text-sm text-slate-500">{medicine.stock}</p>
-      </div>
-    </div>
-  </div>
-);
-
-const Tag = ({ text, type }) => {
-  const baseClasses = "text-xs font-semibold px-3 py-1 rounded-full flex items-center";
-  let typeClasses = "";
-
-  switch (type) {
-    case 'status':
-      typeClasses = "bg-slate-800 text-white";
-      break;
-    case 'warning':
-      typeClasses = "bg-yellow-100 text-yellow-800";
-      break;
-    case 'category':
-    default:
-      typeClasses = "bg-slate-200 text-slate-700";
-      break;
-  }
-
-  return (
-    <span className={`${baseClasses} ${typeClasses}`}>
-      {type === 'status' && text === "In Stock" && <FiCheckCircle className="mr-1.5" />}
-      {text}
-    </span>
   );
 };
 
