@@ -88,6 +88,9 @@ const MedicineDB = () => {
            <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/patient-details')}>
                                   <FiLink className="mr-2" /> Patient Details
                               </button>
+          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/billing')}>
+            <FiDollarSign className="mr-2" /> Billing
+          </button>
         </div>
       </nav>
 

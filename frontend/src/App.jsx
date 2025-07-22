@@ -7,6 +7,7 @@ import Inventory from './pages/Inventory';
  import Revenue from './pages/Revenue';
 import MedicineDB from './pages/MedicineDB';
 import PatientDetails from './pages/PatientDetails';
+import Billing from './pages/Billing'; // Assuming you have a Billing page
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
               <Route path="/revenue" element={<Revenue />} />
               <Route path="/medicine-db" element={<MedicineDB />} />
               <Route path="/patient-details" element={<PatientDetails />} />
+              <Route path="/Billing" element={<Billing />} />
             </Routes>
           </main>
         </div>

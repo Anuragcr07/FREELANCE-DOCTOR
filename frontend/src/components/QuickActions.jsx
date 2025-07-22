@@ -35,6 +35,11 @@ const QuickActions = () => {
         }}>
           <FiSearch className="mr-2" /> View Patient Details
         </button>
+        <button className="flex items-center justify-center p-4 bg-white border border-gray-200 rounded-lg" onClick={() => {
+          navigate('/Billing');
+        }}>
+          <FiSearch className="mr-2" /> Billing
+        </button>
       </div>
     </div>
   );
