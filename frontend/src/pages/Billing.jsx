@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { 
-  FiSearch, 
-  FiDollarSign, 
-  FiBarChart2, 
-  FiFileText, 
-  FiArchive, 
-  FiLink, 
+import React, { useState, useEffect } from 'react';
+import {
+  FiSearch,
+  FiDollarSign,
+  FiBarChart2,
+  FiFileText,
+  FiArchive,
+  FiLink,
   FiUser,
   FiPlus,
   FiTrash2
@@ -15,25 +15,67 @@ import Header from '../components/Header'; // Assuming Header is a shared compon
 
 const Billing = () => {
   const navigate = useNavigate();
-  
-  // Mock data for available medicines - in a real app, this would be fetched from an API
-  const [medicines] = useState([
-    { id: 1, name: 'Paracetamol 500mg', price: 12.50, stock: 150 },
-    { id: 2, name: 'Amoxicillin 250mg', price: 45.00, stock: 8 },
-    { id: 3, name: 'Aspirin 75mg', price: 8.75, stock: 200 },
-    { id: 4, name: 'Ibuprofen 400mg', price: 18.25, stock: 45 },
-  ]);
 
+  const [medicines, setMedicines] = useState([]);
   const [billItems, setBillItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // States for patient info
+  const [patientName, setPatientName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+
+  // Fetch medicines from the API when the component mounts
+  useEffect(() => {
+    const fetchMedicines = async () => {
+      try {
+        // Use the correct endpoint from your backend
+        const response = await fetch('http://localhost:5000/api/inventory');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        
+        // Map backend data to frontend state structure
+        // Mongoose uses `_id` and your schema has `medicineName` and `quantity`
+        const formattedData = data.map(med => ({
+          id: med._id, // Map _id to id
+          name: med.medicineName, // Map medicineName to name
+          stock: med.quantity, // Map quantity to stock
+          price: med.price,
+        }));
+        setMedicines(formattedData);
+
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMedicines();
+  }, []);
 
   const handleAddMedicine = (medicine) => {
+    // Check against the available stock
+    if (medicine.stock <= 0) {
+      alert(`${medicine.name} is out of stock.`);
+      return;
+    }
+
     setBillItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === medicine.id);
       if (existingItem) {
-        return prevItems.map((item) =>
-          item.id === medicine.id ? { ...item, quantity: item.quantity + 1 } : item
-        );
+        // Prevent adding more than what's in stock
+        if (existingItem.quantity < medicine.stock) {
+          return prevItems.map((item) =>
+            item.id === medicine.id ? { ...item, quantity: item.quantity + 1 } : item
+          );
+        } else {
+          alert(`Cannot add more ${medicine.name}. Only ${medicine.stock} left in stock.`);
+          return prevItems;
+        }
       } else {
         return [...prevItems, { ...medicine, quantity: 1 }];
       }
@@ -45,8 +87,12 @@ const Billing = () => {
   };
 
   const handleUpdateQuantity = (itemId, newQuantity) => {
+    const medicineInStock = medicines.find((m) => m.id === itemId);
+
     if (newQuantity <= 0) {
       handleRemoveItem(itemId);
+    } else if (newQuantity > medicineInStock.stock) {
+      alert(`Cannot set quantity for ${medicineInStock.name} to ${newQuantity}. Only ${medicineInStock.stock} left in stock.`);
     } else {
       setBillItems((prevItems) =>
         prevItems.map((item) =>
@@ -56,41 +102,85 @@ const Billing = () => {
     }
   };
 
+  const handleGenerateBill = async () => {
+    if (billItems.length === 0) {
+        alert("Cannot generate a bill with no items.");
+        return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/api/inventory/update-stock', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ billItems }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update stock');
+      }
+
+      const updatedMedicines = medicines.map(med => {
+        const billedItem = billItems.find(item => item.id === med.id);
+        if (billedItem) {
+          return { ...med, stock: med.stock - billedItem.quantity };
+        }
+        return med;
+      });
+      setMedicines(updatedMedicines);
+
+      alert('Bill generated and stock updated successfully!');
+      
+      setBillItems([]);
+      setPatientName('');
+      setPhoneNumber('');
+
+    } catch (error) {
+      setError(error.message);
+      alert('Error generating bill: ' + error.message);
+    }
+  };
+
   const filteredMedicines = medicines.filter(med =>
     med.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const totalAmount = billItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
 
+  if (loading) return <div className="p-8 text-center text-lg">Loading medicines from the database...</div>;
+  if (error) return <div className="p-8 text-center text-lg text-red-500">Error: {error}</div>;
+
   return (
     <div className="w-full min-h-screen bg-slate-50 font-sans">
       <Header />
 
-      <nav className="px-4 pt-4">
-        <div className="bg-white p-2 rounded-lg shadow-sm flex items-center space-x-2">
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/')}>
-            <FiBarChart2 className="mr-2" /> Dashboard
-          </button>
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/symptom-analysis')}>
-            <FiFileText className="mr-2" /> Symptom Analysis
-          </button>
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/inventory')}>
-            <FiArchive className="mr-2" /> Inventory
-          </button>
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/revenue')}>
-            <FiDollarSign className="mr-2" /> Revenue
-          </button>
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/medicine-db')}>
-            <FiLink className="mr-2" /> Medicine DB
-          </button>
-           <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/patient-details')}>
-            <FiLink className="mr-2" /> Patient Details
-           </button>
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100 bg-slate-100" onClick={() => navigate('/billing')}>
-            <FiDollarSign className="mr-2" /> Billing
-          </button>
-        </div>
-      </nav>
+       <nav className="px-4 pt-4">
+              <div className="bg-white p-2 rounded-lg shadow-sm flex items-center space-x-2">
+                <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/')}>
+                  <FiBarChart2 className="mr-2" /> Dashboard
+                </button>
+                <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/symptom-analysis')}>
+                  <FiFileText className="mr-2" /> Symptom Analysis
+                </button>
+                <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/inventory')}>
+                  <FiArchive className="mr-2" /> Inventory
+                </button>
+                <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/revenue')}>
+                  <FiDollarSign className="mr-2" /> Revenue
+                </button>
+                <button className="flex items-center justify-center w-full px-4 py-2 text-white bg-slate-800 rounded-md" onClick={() => navigate('/medicine-db')}>
+                  <FiLink className="mr-2" /> Medicine DB
+                </button>
+                 <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/patient-details')}>
+                                        <FiLink className="mr-2" /> Patient Details
+                                    </button>
+                <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/billing')}>
+                  <FiDollarSign className="mr-2" /> Billing
+                </button>
+              </div>
+            </nav>
 
       <main className="p-4 space-y-6">
         
@@ -114,19 +204,20 @@ const Billing = () => {
               />
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredMedicines.map((medicine) => (
                 <div key={medicine.id} className="bg-slate-50 p-4 rounded-lg border border-slate-200 flex justify-between items-center">
                   <div>
                     <p className="font-bold text-slate-800">{medicine.name}</p>
-                    <p className="text-sm text-slate-600">₹{medicine.price.toFixed(2)} • <span className="text-green-600">Stock: {medicine.stock}</span></p>
+                    <p className="text-sm text-slate-600">₹{medicine.price.toFixed(2)} • <span className={medicine.stock > 10 ? 'text-green-600' : 'text-red-600'}>Stock: {medicine.stock}</span></p>
                   </div>
                   <button
                     onClick={() => handleAddMedicine(medicine)}
-                    className="bg-blue-500 text-black rounded-lg h-10 w-10 flex items-center justify-center hover:bg-blue-600"
+                    // Disable button if medicine is out of stock
+                    disabled={medicine.stock <= 0}
+                    className="bg-blue-500 text-black font-bold rounded-lg h-10 w-20 flex items-center justify-center hover:bg-blue-600 disabled:bg-slate-300 disabled:cursor-not-allowed"
                   >
                     ADD
-                    <FiPlus size={20} className="text-blue-500" />
                   </button>
                 </div>
               ))}
@@ -140,17 +231,17 @@ const Billing = () => {
                     <FiUser className="h-7 w-7 text-slate-500 mr-3" />
                     <div>
                         <h2 className="text-2xl font-bold text-slate-800">Patient Info</h2>
-                        <p className="text-slate-500">Enter patient details</p>
+                        <p className="text-slate-500">Enter patient details (optional)</p>
                     </div>
                 </div>
                 <div className="space-y-4">
                     <div>
                         <label htmlFor="patientName" className="block text-sm font-medium text-slate-700 mb-1">Patient Name</label>
-                        <input type="text" id="patientName" placeholder="Enter patient name" className="w-full px-4 py-2 border border-slate-300 rounded-lg"/>
+                        <input type="text" id="patientName" placeholder="Enter patient name" className="w-full px-4 py-2 border border-slate-300 rounded-lg" value={patientName} onChange={(e) => setPatientName(e.target.value)} />
                     </div>
                     <div>
                         <label htmlFor="phoneNumber" className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
-                        <input type="text" id="phoneNumber" placeholder="Enter phone number" className="w-full px-4 py-2 border border-slate-300 rounded-lg"/>
+                        <input type="text" id="phoneNumber" placeholder="Enter phone number" className="w-full px-4 py-2 border border-slate-300 rounded-lg" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
                     </div>
                 </div>
             </section>
@@ -165,7 +256,9 @@ const Billing = () => {
                 </div>
               </div>
               {billItems.length === 0 ? (
-                <p className="text-slate-500 text-center py-8">No items added to the bill yet.</p>
+                <div className="text-center py-10">
+                    <p className="text-slate-500">No items added to the bill yet.</p>
+                </div>
               ) : (
                 <div className="space-y-4">
                   {billItems.map((item) => (
@@ -189,7 +282,10 @@ const Billing = () => {
                       <span>Total Amount:</span>
                       <span className="text-green-600">₹{totalAmount}</span>
                     </div>
-                    <button className="w-full mt-6 flex items-center justify-center px-6 py-4 text-lg font-semibold text-black bg-slate-800 rounded-lg hover:bg-slate-900">
+                    <button 
+                        onClick={handleGenerateBill}
+                        className="w-full mt-6 flex items-center justify-center px-6 py-4 text-lg font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+                    >
                         <FiDollarSign className="mr-2" /> Generate & Print Bill
                     </button>
                   </div>
