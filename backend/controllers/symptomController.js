@@ -1,6 +1,6 @@
-const Inventory = require('../models/medicineModel');
+import Inventory from '../models/medicineModel.js';
 
-const analyzeSymptoms = async (req, res) => {
+export const analyzeSymptoms = async (req, res) => {
     const { symptoms } = req.body;
 
     if (!symptoms) {
@@ -23,6 +23,4 @@ const analyzeSymptoms = async (req, res) => {
     }
 };
 
-module.exports = {
-    analyzeSymptoms,
-};
+// No need for a separate export block at the end

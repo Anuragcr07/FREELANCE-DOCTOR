@@ -1,9 +1,19 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const dotenv = require('dotenv');
+// backend/server.js
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import dotenv from 'dotenv';
 
 dotenv.config();
+
+import medicineRoutes from './routes/medicineRoutes.js';
+import masterMedicineRoutes from './routes/masterMedicineRoutes.js';
+import symptomRoutes from './routes/symptomRoutes.js';
+import patientRoutes from './routes/patients.js';
+import transactionRoutes from './routes/transaction.routes.js';
+import statsRoutes from './routes/stats.routes.js';
+
+
 
 const app = express();
 
@@ -12,31 +22,29 @@ app.use(cors());
 app.use(express.json());
 
 
-const medicineRoutes = require('./routes/medicineRoutes');
-app.use('/api/inventory', medicineRoutes); // This is correct
-
-const masterMedicineRoutes = require('./routes/masterMedicineRoutes');
-app.use('/api/medicines', masterMedicineRoutes); // This is also okay
-
-const symptomRoutes = require('./routes/symptomRoutes');
+app.use('/api/inventory', medicineRoutes);
+app.use('/api/medicines', masterMedicineRoutes);
 app.use('/api/symptoms', symptomRoutes);
-
-const patientRoutes = require('./routes/patients');
 app.use('/api/patients', patientRoutes);
-
-// COMMENT OUT OR DELETE THESE LINES TO FIX THE CRASH
-// const billingRoutes = require('./routes/billingRoutes');
-// app.use('/api/billing', billingRoutes);
-
-// Database Connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB connected successfully'))
-.catch(err => console.error(err));
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/stats', statsRoutes);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+const MONGO_URI = process.env.MONGO_URI;
+
+if (!MONGO_URI) {
+  console.error("FATAL ERROR: MONGO_URI is not defined in your .env file.");
+  process.exit(1);
+}
+
+mongoose.connect(MONGO_URI)
+  .then(() => {
+    console.log('✅ MongoDB connected successfully');
+    app.listen(PORT, () => {
+      console.log(`🚀 Server is running on port ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error("❌ Database connection failed:", err.message);
+    process.exit(1);
+  });

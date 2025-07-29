@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   FiBarChart2, 
   FiFileText, 
@@ -6,7 +6,6 @@ import {
   FiDollarSign, 
   FiHeart, 
   FiArrowUp, 
-  FiArrowDown,
   FiCalendar,
   FiDownload,
   FiLink
@@ -14,62 +13,61 @@ import {
 import Header from '../components/Header'; 
 import { useNavigate } from 'react-router-dom';
 
-
-const topMedicines = [
-  { rank: 1, name: 'Paracetamol 500mg', sold: '1824 units sold', revenue: '₹45,600', change: '+12%', changeType: 'increase' },
-  { rank: 2, name: 'Amoxicillin 250mg', sold: '760 units sold', revenue: '₹34,200', change: '+8%', changeType: 'increase' },
-  { rank: 3, name: 'Insulin Glargine', sold: '35 units sold', revenue: '₹29,800', change: '-3%', changeType: 'decrease' },
-  { rank: 4, name: 'Cetirizine 10mg', sold: '710 units sold', revenue: '₹28,400', change: '+15%', changeType: 'increase' },
-  { rank: 5, name: 'Omeprazole 20mg', sold: '427 units sold', revenue: '₹25,600', change: '+6%', changeType: 'increase' },
-];
-
-const recentTransactions = [
-    { time: '10:30 AM', name: 'Paracetamol 500mg', patient: 'Patient: John Doe', price: '₹50', qty: 2 },
-    { time: '10:25 AM', name: 'Amoxicillin 250mg', patient: 'Patient: Jane Smith', price: '₹45', qty: 1 },
-    { time: '10:20 AM', name: 'Insulin Glargine', patient: 'Patient: Bob Wilson', price: '₹850', qty: 1 },
-    { time: '10:15 AM', name: 'Cetirizine 10mg', patient: 'Patient: Alice Brown', price: '₹40', qty: 1 },
-    { time: '10:10 AM', name: 'Omeprazole 20mg', patient: 'Patient: Charlie Davis', price: '₹60', qty: 1 },
-];
-
 const Revenue = () => {
   const navigate = useNavigate();
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchRevenueStats = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:5000/api/stats/revenue');
+        if (!response.ok) {
+          throw new Error('Failed to fetch revenue data.');
+        }
+        const data = await response.json();
+        setStats(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRevenueStats();
+  }, []);
+
+  if (loading) return <div className="p-8 text-center text-lg">Loading revenue data...</div>;
+  if (error) return <div className="p-8 text-center text-lg text-red-500">Error: {error}</div>;
+
+  const { todayRevenue, weekRevenue, monthRevenue, dailyTrends, recentTransactions } = stats;
+  
+  // Calculate max height for the bar chart for scaling
+  const maxTrendValue = dailyTrends.length > 0 ? Math.max(...dailyTrends.map(d => d.dailyTotal)) : 1;
+
   return (
     <div className="bg-slate-100 min-h-screen font-sans">
         <Header />
-      {/* Navigation Tabs */}
+      {/* Navigation Tabs - This part remains the same */}
       <nav className="px-4 pt-4">
         <div className="bg-white p-2 rounded-lg shadow-sm flex items-center space-x-2">
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/')}>
-            <FiBarChart2 className="mr-2" /> Dashboard
-          </button>
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/symptom-analysis')}>
-            <FiFileText className="mr-2" /> Symptom Analysis
-          </button>
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/inventory')}>
-            <FiArchive className="mr-2" /> Inventory
-          </button>
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/revenue')}>
-            <FiDollarSign className="mr-2" /> Revenue
-          </button>
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/medicine-db')}>
-            <FiHeart className="mr-2" /> Medicine DB
-          </button>
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/patient-details')}>
-           <FiLink className="mr-2" /> Patient Details
-            </button>
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/billing')}>
-            <FiDollarSign className="mr-2" /> Billing
-          </button>
+            <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/')}><FiBarChart2 className="mr-2" /> Dashboard</button>
+            <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/symptom-analysis')}><FiFileText className="mr-2" /> Symptom Analysis</button>
+            <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/inventory')}><FiArchive className="mr-2" /> Inventory</button>
+            <button className="flex items-center justify-center w-full px-4 py-2 text-white bg-slate-800 rounded-md" onClick={() => navigate('/revenue')}><FiDollarSign className="mr-2" /> Revenue</button>
+            <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/medicine-db')}><FiHeart className="mr-2" /> Medicine DB</button>
+            <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/patient-details')}><FiLink className="mr-2" /> Patient Details</button>
+            <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/billing')}><FiDollarSign className="mr-2" /> Billing</button>
         </div>
       </nav>
-
 
       {/* Main Content */}
       <main className="p-4 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatCard title="Today's Revenue" value="₹15,420" change="+25.0% from yesterday" icon={<FiDollarSign />} />
-          <StatCard title="This Week" value="₹89,560" change="+14.2% from last week" icon={<FiCalendar />} />
-          <StatCard title="This Month" value="₹345,600" change="+15.7% from last month" icon={<FiFileText />} />
+          <StatCard title="Today's Revenue" value={`₹${todayRevenue.toFixed(2)}`} change="+25.0% from yesterday" icon={<FiDollarSign />} />
+          <StatCard title="This Week" value={`₹${weekRevenue.toFixed(2)}`} change="+14.2% from last week" icon={<FiCalendar />} />
+          <StatCard title="This Month" value={`₹${monthRevenue.toFixed(2)}`} change="+15.7% from last month" icon={<FiFileText />} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -78,33 +76,22 @@ const Revenue = () => {
                     <div className="border-b border-slate-200 mb-4">
                         <div className="flex space-x-1">
                             <button className="px-4 py-2 text-sm font-semibold text-blue-600 border-b-2 border-blue-600">Daily Revenue</button>
+                            {/* Add logic for these buttons if needed */}
                             <button className="px-4 py-2 text-sm font-semibold text-slate-500 hover:text-blue-600">Monthly Trends</button>
                             <button className="px-4 py-2 text-sm font-semibold text-slate-500 hover:text-blue-600">Categories</button>
                         </div>
                     </div>
                     <div>
-                        <h3 className="text-xl font-bold text-slate-800">Daily Revenue Trends (This Week)</h3>
-                        <p className="text-slate-500 mb-6">Revenue and transaction count by day</p>
+                        <h3 className="text-xl font-bold text-slate-800">Daily Revenue Trends (Last 7 Days)</h3>
+                        <p className="text-slate-500 mb-6">Revenue count by day</p>
                         <div className="h-64 flex items-end justify-between space-x-2">
-                          <div className="w-full bg-blue-500 rounded-t-md" style={{height: '55%'}}></div>
-                          <div className="w-full bg-blue-500 rounded-t-md" style={{height: '65%'}}></div>
-                          <div className="w-full bg-blue-500 rounded-t-md" style={{height: '60%'}}></div>
-                          <div className="w-full bg-blue-500 rounded-t-md" style={{height: '70%'}}></div>
-                          <div className="w-full bg-blue-500 rounded-t-md" style={{height: '80%'}}></div>
-                          <div className="w-full bg-blue-500 rounded-t-md" style={{height: '95%'}}></div>
-                          <div className="w-full bg-blue-500 rounded-t-md" style={{height: '65%'}}></div>
+                          {dailyTrends.map(trend => (
+                            <div key={trend._id} className="w-full bg-blue-500 rounded-t-md hover:bg-blue-600" title={`Date: ${trend._id}\nRevenue: ₹${trend.dailyTotal.toFixed(2)}`} style={{height: `${(trend.dailyTotal / maxTrendValue) * 100}%`}}></div>
+                          ))}
                         </div>
                     </div>
                 </section>
-                <section className="bg-white p-6 rounded-lg shadow-sm">
-                  <h3 className="text-xl font-bold text-slate-800 mb-1">Top Performing Medicines</h3>
-                  <p className="text-slate-500 mb-6">Best selling medicines by revenue this month</p>
-                  <div className="space-y-4">
-                    {topMedicines.map((med) => (
-                      <MedicinePerformanceItem key={med.rank} {...med} />
-                    ))}
-                  </div>
-                </section>
+                {/* You can add back the "Top Performing Medicines" section with new backend logic if needed */}
             </div>
             
             <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow-sm">
@@ -118,18 +105,18 @@ const Revenue = () => {
                     </button>
                 </div>
                 <div className="space-y-4">
-                    {recentTransactions.map((trx, index) => (
-                        <div key={index} className="flex justify-between items-center border-b border-slate-100 pb-3">
+                    {recentTransactions.map((trx) => (
+                        <div key={trx._id} className="flex justify-between items-center border-b border-slate-100 pb-3">
                             <div className="flex items-center">
-                                <p className="text-sm font-medium text-slate-500 w-20">{trx.time}</p>
+                                <p className="text-sm font-medium text-slate-500 w-20">{new Date(trx.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                 <div>
-                                    <p className="font-semibold text-slate-800">{trx.name}</p>
-                                    <p className="text-sm text-slate-500">{trx.patient}</p>
+                                    <p className="font-semibold text-slate-800">{trx.items.length} Item(s)</p>
+                                    <p className="text-sm text-slate-500">Patient: {trx.patientName}</p>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <p className="font-bold text-slate-800">{trx.price}</p>
-                                <p className="text-sm text-slate-500">Qty: {trx.qty}</p>
+                                <p className="font-bold text-slate-800">₹{trx.totalAmount.toFixed(2)}</p>
+                                <p className="text-sm text-slate-500">{trx.items.reduce((acc, item) => acc + item.quantity, 0)} Qty</p>
                             </div>
                         </div>
                     ))}
@@ -141,6 +128,7 @@ const Revenue = () => {
   );
 };
 
+// StatCard component remains the same
 const StatCard = ({ title, value, change, icon }) => (
   <div className="bg-white p-5 rounded-lg shadow-sm flex justify-between items-start">
     <div>
@@ -156,24 +144,5 @@ const StatCard = ({ title, value, change, icon }) => (
     </div>
   </div>
 );
-
-const MedicinePerformanceItem = ({ rank, name, sold, revenue, change, changeType }) => (
-  <div className="flex items-center justify-between bg-slate-50 p-4 rounded-lg">
-    <div className="flex items-center">
-      <p className="text-slate-400 font-bold text-lg w-8">{rank}</p>
-      <div>
-        <p className="font-bold text-slate-800">{name}</p>
-        <p className="text-sm text-slate-500">{sold}</p>
-      </div>
-    </div>
-    <div className="flex items-center space-x-4">
-      <p className="font-bold text-lg text-slate-800">{revenue}</p>
-      <span className={`text-sm font-semibold px-2.5 py-1 rounded-full ${changeType === 'increase' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-        {change}
-      </span>
-    </div>
-  </div>
-);
-
 
 export default Revenue;

@@ -40,8 +40,8 @@ const Billing = () => {
           name: med.medicineName,
           stock: med.quantity,
           price: med.price,
-          batchNumber: med.batchNumber, // Ensure these fields are passed from the backend
-          expiryDate: med.expiryDate,   // Ensure these fields are passed from the backend
+          batchNumber: med.batchNumber, 
+          expiryDate: med.expiryDate,   
         }));
         setMedicines(formattedData);
       } catch (err) {
@@ -94,6 +94,7 @@ const Billing = () => {
     }
   };
 
+
   const handleGenerateBill = async () => {
     if (billItems.length === 0) {
         alert("Cannot generate a bill with no items.");
@@ -101,46 +102,62 @@ const Billing = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/inventory/update-stock', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ billItems: billItems.map(item => ({ id: item.id, quantity: item.quantity })) }),
-      });
+            // Step 1: Update stock (this can stay the same)
+            const stockUpdateResponse = await fetch('http://localhost:5000/api/inventory/update-stock', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ billItems: billItems.map(item => ({ id: item.id, quantity: item.quantity })) }),
+            });
+            if (!stockUpdateResponse.ok) throw new Error('Failed to update stock.');
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update stock');
-      }
-      
-      generateInvoicePDF({
-        billItems,
-        total: totalAmount,
-        patientName,
-        phoneNumber,
-      });
+            // ✅ Step 2: Create the transaction record in the database
+            const transactionData = {
+                items: billItems.map(item => ({
+                    medicineId: item.id,
+                    medicineName: item.name,
+                    quantity: item.quantity,
+                    price: item.price,
+                })),
+                totalAmount: parseFloat(totalAmount),
+                patientName,
+                phoneNumber,
+            };
+            
+            const transactionResponse = await fetch('http://localhost:5000/api/transactions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(transactionData),
+            });
+            if (!transactionResponse.ok) throw new Error('Failed to save the transaction.');
+            
+            // Step 3: Generate the PDF for the user
+            generateInvoicePDF({
+                billItems,
+                total: totalAmount,
+                patientName,
+                phoneNumber,
+            });
 
-      const updatedMedicines = medicines.map(med => {
-        const billedItem = billItems.find(item => item.id === med.id);
-        if (billedItem) {
-          return { ...med, stock: med.stock - billedItem.quantity };
+            // Step 4: Update local state to reflect changes
+            const updatedMedicines = medicines.map(med => {
+                const billedItem = billItems.find(item => item.id === med.id);
+                return billedItem ? { ...med, stock: med.stock - billedItem.quantity } : med;
+            });
+            setMedicines(updatedMedicines);
+            
+            alert('Bill generated, stock updated, and transaction recorded! PDF is downloading.');
+            
+            // Step 5: Clear the bill
+            setBillItems([]);
+            setPatientName('');
+            setPhoneNumber('');
+
+        } catch (err) {
+            setError(err.message);
+            alert('Error generating bill: ' + err.message);
         }
-        return med;
-      });
-      setMedicines(updatedMedicines);
-
-      alert('Bill generated and stock updated successfully! PDF has been downloaded.');
-      
-      setBillItems([]);
-      setPatientName('');
-      setPhoneNumber('');
-
-    } catch (err) {
-      setError(err.message);
-      alert('Error generating bill: ' + err.message);
-    }
-  };
+        // --- End of updated logic ---
+    };
 
   const filteredMedicines = medicines.filter(med =>
     med.name.toLowerCase().includes(searchQuery.toLowerCase())

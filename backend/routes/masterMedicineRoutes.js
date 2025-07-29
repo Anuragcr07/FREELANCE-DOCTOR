@@ -1,11 +1,15 @@
 // backend/routes/masterMedicineRoutes.js
-const express = require('express');
+import express from 'express';
+import { 
+    searchMedicines, 
+    addMasterMedicine, 
+    getAllInventoryMedicines 
+} from '../controllers/masterMedicineController.js';
+
 const router = express.Router();
-const { searchMedicines, addMasterMedicine , getAllInventoryMedicines } = require('../controllers/masterMedicineController');
 
-router.get('/all', getAllInventoryMedicines); 
+router.get('/all', getAllInventoryMedicines);
 router.get('/search', searchMedicines);
+router.post('/add', addMasterMedicine);
 
-router.post('/add', addMasterMedicine); 
-
-module.exports = router;
+export default router;

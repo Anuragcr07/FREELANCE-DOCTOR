@@ -1,9 +1,8 @@
 // routes/patients.js
-const express = require('express');
-const router = express.Router();
+import express from 'express';
+import Patient from '../models/Patient.js'; // You'll need a Patient model (schema)
 
-// You'll need a Patient model (schema)
-const Patient = require('../models/Patient'); // Create this model file
+const router = express.Router();
 
 // GET all patients (with search)
 router.get('/', async (req, res) => {
@@ -43,4 +42,4 @@ router.post('/add', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

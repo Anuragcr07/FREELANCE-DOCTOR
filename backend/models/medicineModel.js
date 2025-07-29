@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-
+// models/Medicine.js
+import mongoose from 'mongoose';
 
 const medicineSchema = new mongoose.Schema({
   medicineName: { type: String, required: true },
@@ -16,4 +16,6 @@ const medicineSchema = new mongoose.Schema({
 
 medicineSchema.index({ medicineName: 1, manufacturer: 1, category: 1 });
 
-module.exports = mongoose.model('Medicine', medicineSchema);
+const Medicine = mongoose.model('Medicine', medicineSchema);
+
+export default Medicine;

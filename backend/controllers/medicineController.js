@@ -1,16 +1,16 @@
-const Medicine = require('../models/medicineModel');
+import Medicine from '../models/medicineModel.js';
 
-const addMedicine = async (req, res) => {
+export const addMedicine = async (req, res) => {
   try {
-    const { 
-      medicineName, 
-      manufacturer, 
-      batchNumber, 
-      expiryDate, 
-      quantity, 
-      price, 
-      category, 
-      minStock 
+    const {
+      medicineName,
+      manufacturer,
+      batchNumber,
+      expiryDate,
+      quantity,
+      price,
+      category,
+      minStock
     } = req.body;
 
     const newMedicine = new Medicine({
@@ -31,7 +31,7 @@ const addMedicine = async (req, res) => {
   }
 };
 
-const getAllMedicines = async (req, res) => {
+export const getAllMedicines = async (req, res) => {
   try {
     const medicines = await Medicine.find({});
     res.json(medicines);
@@ -40,7 +40,7 @@ const getAllMedicines = async (req, res) => {
   }
 };
 
-const getLowStockMedicines = async (req, res) => {
+export const getLowStockMedicines = async (req, res) => {
   try {
     const lowStockMedicines = await Medicine.find({ $expr: { $lte: ['$quantity', '$minStock'] } });
     res.json(lowStockMedicines);
@@ -49,33 +49,26 @@ const getLowStockMedicines = async (req, res) => {
   }
 };
 
-// NEW FUNCTION TO HANDLE STOCK UPDATES
 /**
  * @desc    Update stock for multiple medicines after a bill is generated
  * @route   PATCH /api/medicines/update-stock
  * @access  Public (or Protected in a real app)
  */
-const updateStockAfterBilling = async (req, res) => {
-  // Get the array of items from the bill in the request body
+export const updateStockAfterBilling = async (req, res) => {
   const { billItems } = req.body;
 
-  // Basic validation
   if (!billItems || !Array.isArray(billItems) || billItems.length === 0) {
     return res.status(400).json({ message: 'Invalid or empty bill items provided.' });
   }
 
   try {
-    // Create an array of update operations for bulkWrite
     const bulkUpdateOperations = billItems.map(item => ({
       updateOne: {
-        filter: { _id: item.id }, // Find the document by its ID
-        // Use the $inc operator to decrement the quantity
-        // This is an atomic operation and safer than fetching and then saving
+        filter: { _id: item.id },
         update: { $inc: { quantity: -item.quantity } },
       },
     }));
 
-    // Execute all update operations in a single database command
     const result = await Medicine.bulkWrite(bulkUpdateOperations);
 
     res.json({
@@ -85,11 +78,4 @@ const updateStockAfterBilling = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Server Error while updating stock', error });
   }
-};
-
-module.exports = {
-  addMedicine,
-  getAllMedicines,
-  getLowStockMedicines,
-  updateStockAfterBilling, // <-- Export the new function
 };

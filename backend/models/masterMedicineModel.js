@@ -1,22 +1,24 @@
 // backend/models/masterMedicineModel.js
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const masterMedicineSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   genericName: { type: String, required: true },
   description: { type: String },
   category: { type: String, required: true },
-  indications: { type: String }, 
+  indications: { type: String },
   dosage: { type: String },
   sideEffects: { type: String },
-  isRx: { type: Boolean, default: false }, 
+  isRx: { type: Boolean, default: false },
 });
 
-masterMedicineSchema.index({ 
-  name: 'text', 
-  genericName: 'text', 
+masterMedicineSchema.index({
+  name: 'text',
+  genericName: 'text',
   category: 'text',
-  indications: 'text' 
+  indications: 'text'
 });
 
-module.exports = mongoose.model('MasterMedicine', masterMedicineSchema);
+const MasterMedicine = mongoose.model('MasterMedicine', masterMedicineSchema);
+
+export default MasterMedicine;

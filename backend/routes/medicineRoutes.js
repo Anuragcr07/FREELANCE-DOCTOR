@@ -1,17 +1,17 @@
 // routes/medicineRoutes.js
-const express = require('express');
-const router = express.Router();
-
-const { 
-  addMedicine, 
-  getAllMedicines, 
+import express from 'express';
+import {
+  addMedicine,
+  getAllMedicines,
   getLowStockMedicines,
   updateStockAfterBilling
-} = require('../controllers/medicineController');
+} from '../controllers/medicineController.js';
+
+const router = express.Router();
 
 router.post('/add', addMedicine);
 router.get('/', getAllMedicines);
 router.get('/low-stock', getLowStockMedicines);
 router.patch('/update-stock', updateStockAfterBilling);
 
-module.exports = router;
+export default router;
