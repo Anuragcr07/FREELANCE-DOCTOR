@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/dashboard';
 import './App.css'; 
 import SymptomAnalysis from './pages/SymptomAnalysis';
 import Inventory from './pages/Inventory';
@@ -8,6 +8,9 @@ import Inventory from './pages/Inventory';
 import MedicineDB from './pages/MedicineDB';
 import PatientDetails from './pages/PatientDetails';
 import Billing from './pages/Billing'; // Assuming you have a Billing page
+import Landingpage from './pages/landingpage';
+import Login from './pages/login';
+
 
 function App() {
   return (
@@ -17,7 +20,10 @@ function App() {
           
           <main className="flex-1 w-full overflow-y-auto bg-gray-50 px-4">
             <Routes>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<Landingpage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              
               <Route path="/symptom-analysis" element={<SymptomAnalysis />} />
                <Route path="/inventory" element={<Inventory />} /> 
               <Route path="/revenue" element={<Revenue />} />
