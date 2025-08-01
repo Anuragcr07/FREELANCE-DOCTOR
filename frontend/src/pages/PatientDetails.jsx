@@ -90,7 +90,7 @@ const PatientDetails = () => {
                     <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/')}>
                         <FiBarChart2 className="mr-2" /> Dashboard
                     </button>
-                    <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md" onClick={() => navigate('/symptom-analysis')}>
+                    <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/symptom-analysis')}>
                         <FiFileText className="mr-2" /> Symptom Analysis
                     </button>
                     <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/inventory')}>

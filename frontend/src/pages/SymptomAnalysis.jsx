@@ -75,7 +75,7 @@ const SymptomAnalysis = () => {
                     <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/')}>
                         <FiBarChart2 className="mr-2" /> Dashboard
                     </button>
-                    <button className="flex items-center justify-center w-full px-4 py-2 text-white bg-slate-800 rounded-md" onClick={() => navigate('/symptom-analysis')}>
+                    <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/symptom-analysis')}>
                         <FiFileText className="mr-2" /> Symptom Analysis
                     </button>
                     <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/inventory')}>
@@ -183,7 +183,7 @@ const SymptomAnalysis = () => {
 
                         <button
                             type="submit"
-                            className="w-full flex items-center justify-center px-6 py-4 text-lg font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-slate-400 disabled:cursor-not-allowed"
+                            className="w-full flex items-center justify-center px-6 py-4 text-lg font-semibold text-black bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-slate-400 disabled:cursor-not-allowed"
                             disabled={!patientName || suggestions.length === 0 || isLoading}
                         >
                             <FiSave className="mr-3" />

@@ -192,7 +192,7 @@ const Billing = () => {
             <button className="flex items-center justify-center w-full px-4 py-2 text-gray-600 rounded-md hover:bg-gray-100" onClick={() => navigate('/patient-details')}>
                   <FiUser className="mr-2" /> Patient Details
               </button>
-            <button className="flex items-center justify-center w-full px-4 py-2 text-white bg-gray-800 rounded-md" onClick={() => navigate('/billing')}>
+            <button className="flex items-center justify-center w-full px-4 py-2 text-gray-600 rounded-md hover:bg-gray-100" onClick={() => navigate('/billing')}>
               <FiDollarSign className="mr-2" /> Billing
             </button>
           </div>
@@ -231,7 +231,7 @@ const Billing = () => {
                 <button
                   onClick={() => handleAddMedicine(medicine)}
                   disabled={medicine.stock <= 0}
-                  className="bg-blue-500 text-white font-bold rounded-lg h-10 w-20 flex items-center justify-center hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  className="bg-blue-500 text-black font-bold rounded-lg h-10 w-20 flex items-center justify-center hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   ADD
                 </button>
@@ -302,7 +302,7 @@ const Billing = () => {
                     </div>
                     <button 
                         onClick={handleGenerateBill}
-                        className="w-full mt-6 flex items-center justify-center px-6 py-4 text-lg font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+                        className="w-full mt-6 flex items-center justify-center px-6 py-4 text-lg font-semibold text-black bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
                     >
                         <FiDollarSign className="mr-2" /> Generate Bill & Download PDF
                     </button>
