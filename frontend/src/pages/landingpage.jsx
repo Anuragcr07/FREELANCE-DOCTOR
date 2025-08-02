@@ -1,19 +1,21 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
-import login from './login'
-
-
-
+import NavigationBar from '../ui/NavigationBar'
+import Hero from '../ui/Hero'
+import Features from '../ui/Features'
+import ContactForm from '../ui/ContactForm'
+import Dashboard from './dashboard'
 const landingpage = () => {
-    const navigate = useNavigate()
   return (
     <div>
-      Landing
-      <button onClick={() => navigate('/login')}>Login</button>
-      
+      <NavigationBar/>
+      <main>
+        <Hero/>
+        <Features/>
+        <ContactForm/>
+      </main>
     </div>
   )
 }
+
 
 export default landingpage

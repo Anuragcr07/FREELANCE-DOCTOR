@@ -9,7 +9,6 @@ import MedicineDB from './pages/MedicineDB';
 import PatientDetails from './pages/PatientDetails';
 import Billing from './pages/Billing'; // Assuming you have a Billing page
 import Landingpage from './pages/landingpage';
-import Login from './pages/login';
 
 
 function App() {
@@ -21,7 +20,6 @@ function App() {
           <main className="flex-1 w-full overflow-y-auto bg-gray-50 px-4">
             <Routes>
               <Route path="/" element={<Landingpage />} />
-              <Route path="/login" element={<Login />} />
               <Route path="/dashboard" element={<Dashboard />} />
               
               <Route path="/symptom-analysis" element={<SymptomAnalysis />} />
