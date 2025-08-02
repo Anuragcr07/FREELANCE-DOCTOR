@@ -93,7 +93,7 @@ const Inventory = () => {
       
       <nav className="px-4 pt-4">
         <div className="bg-white p-2 rounded-lg shadow-sm flex items-center space-x-2">
-          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/')}>
+          <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/dashboard')}>
             <FiBarChart2 className="mr-2" /> Dashboard
           </button>
           <button className="flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/symptom-analysis')}>

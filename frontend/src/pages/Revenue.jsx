@@ -62,7 +62,7 @@ const Revenue = () => {
         {/* ✅ RESPONSIVE FIX: Added overflow-x-auto to make nav scrollable on small screens */}
         <div className="bg-white p-2 rounded-lg shadow-sm flex items-center space-x-2 overflow-x-auto">
             {/* ✅ RESPONSIVE FIX: Added whitespace-nowrap and flex-shrink-0 to prevent buttons from breaking */}
-            <button className="flex items-center justify-center flex-shrink-0 whitespace-nowrap px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/')}><FiBarChart2 className="mr-2" /> Dashboard</button>
+            <button className="flex items-center justify-center flex-shrink-0 whitespace-nowrap px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/dashboard')}><FiBarChart2 className="mr-2" /> Dashboard</button>
             <button className="flex items-center justify-center flex-shrink-0 whitespace-nowrap px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/symptom-analysis')}><FiFileText className="mr-2" /> Symptom Analysis</button>
             <button className="flex items-center justify-center flex-shrink-0 whitespace-nowrap px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/inventory')}><FiArchive className="mr-2" /> Inventory</button>
             <button className="flex items-center justify-center flex-shrink-0 whitespace-nowrap px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100" onClick={() => navigate('/revenue')}><FiDollarSign className="mr-2" /> Revenue</button>
