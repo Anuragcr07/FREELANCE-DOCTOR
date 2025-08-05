@@ -3,6 +3,7 @@ import { FiBarChart2, FiFileText, FiArchive, FiDollarSign, FiLink, FiUser, FiSav
 import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Sidebar from '../components/Sidebar';
 
 const SymptomAnalysis = () => {
     const navigate = useNavigate();
@@ -12,6 +13,7 @@ const SymptomAnalysis = () => {
     const [patientName, setPatientName] = useState('');
     const [age, setAge] = useState('');
     const [gender, setGender] = useState('');
+    
 
     // This function handles saving the patient data.
     const handleSavePatient = async (e) => {
@@ -68,6 +70,8 @@ const SymptomAnalysis = () => {
 
     return (
         <div className="bg-slate-50 min-h-screen font-sans">
+                  <Sidebar isOpen={isSidebarOpen} />
+
             <Header />
 
             <nav className="px-4 pt-4">
