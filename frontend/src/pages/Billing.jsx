@@ -93,6 +93,13 @@ const Billing = () => {
       );
     }
   };
+  const handleSaveBill = () => {
+    const updatedMedicines = medicines.map(med => {
+                const billedItem = billItems.find(item => item.id === med.id);
+                return billedItem ? { ...med, stock: med.stock - billedItem.quantity } : med;
+            });
+            setMedicines(updatedMedicines);
+  };
 
 
   const handleGenerateBill = async () => {
@@ -305,6 +312,9 @@ const Billing = () => {
                         className="w-full mt-6 flex items-center justify-center px-6 py-4 text-lg font-semibold text-black bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
                     >
                         <FiDollarSign className="mr-2" /> Generate Bill & Download PDF
+                    </button>
+                    <button onClick={handleSaveBill}>
+                      SAVE
                     </button>
                   </div>
                 </div>

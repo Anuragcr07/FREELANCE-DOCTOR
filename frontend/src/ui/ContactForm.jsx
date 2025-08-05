@@ -1,69 +1,75 @@
-// src/components/ContactForm.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // 1. Import useNavigate
-import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
-import Dashboard from '../pages/dashboard';
+import { useNavigate } from 'react-router-dom';
 
 const ContactForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(''); // State to hold only the error message
-
-  const navigate = useNavigate(); // 2. Initialize the navigate function
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = (event) => {
     event.preventDefault();
-
-    // 3. Check credentials and navigate on success
     if (username === 'Aman' && password === 'Arti medical 123') {
       console.log('Login successful');
-      navigate('/dashboard'); // Navigate to the dashboard route
+      navigate('/dashboard');
     } else {
       console.log('Login failed');
-      setError('Invalid username or password.'); // Set an error message on failure
+      setError('Invalid username or password.');
     }
   };
 
   return (
-    <Container id="contact" className="py-5">
-      <h2 className="text-center mb-4">Login</h2>
-      <Row className="justify-content-center">
-        <Col md={6}>
-          <Form onSubmit={handleLogin}>
-            <Form.Group className="mb-3" controlId="formBasicName">
-              <Form.Label>Your Name</Form.Label>
-              <Form.Control
+    <section id="contact" className="py-20 bg-gray-50">
+      <div className="container mx-auto px-6">
+        <div className="max-w-lg mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-xl">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">Admin Login</h2>
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <label htmlFor="username" className="font-semibold text-gray-700 block mb-2">
+                Your Name
+              </label>
+              <input
+                id="username"
                 type="text"
                 placeholder="Enter your name"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
               />
-            </Form.Group>
+            </div>
 
-            <Form.Group className="mb-3" controlId="formBasicPassword">
-              <Form.Label>Password</Form.Label>
-              <Form.Control
+            <div>
+              <label htmlFor="password" className="font-semibold text-gray-700 block mb-2">
+                Password
+              </label>
+              <input
+                id="password"
                 type="password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
               />
-            </Form.Group>
+            </div>
 
-            {/* 4. Display an error message if it exists */}
             {error && (
-              <Alert variant="danger" className="mt-3">
-                {error}
-              </Alert>
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative" role="alert">
+                <span className="block sm:inline">{error}</span>
+              </div>
             )}
 
-            <Button variant="primary" type="submit" className="w-100">
-              Login
-            </Button>
-          </Form>
-        </Col>
-      </Row>
-    </Container>
+            <div>
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105 focus:outline-none"
+              >
+                Login
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
   );
 };
 

@@ -1,20 +1,25 @@
-// src/components/Hero.js
 import React from 'react';
-import { Container, Row, Col, Button } from 'react-bootstrap';
 
 const Hero = () => {
   return (
-    <Container style={{ marginTop: '80px', textAlign: 'center' }} className="py-5">
-      <Row className="justify-content-center">
-        <Col md={8}>
-          <h1 className="display-4">Efficient Medical Store Management</h1>
-          <p className="lead">
-            Streamline your pharmacy operations with our all-in-one management system.
-          </p>
-          <Button variant="primary" size="lg" href="#contact">Get Started</Button>
-        </Col>
-      </Row>
-    </Container>
+    <section id="home" className="pt-32 pb-20 bg-white text-center">
+      <div className="container mx-auto px-6">
+        <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 leading-tight">
+          Efficient Medical Store Management
+        </h1>
+        <p className="mt-4 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+          Streamline your pharmacy operations with our all-in-one management system.
+        </p>
+        <div className="mt-8">
+          <a
+            href="#contact"
+            className="bg-blue-600 text-white font-bold px-8 py-4 rounded-full text-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105 inline-block"
+          >
+            Get Started
+          </a>
+        </div>
+      </div>
+    </section>
   );
 };
 
