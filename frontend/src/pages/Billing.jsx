@@ -132,18 +132,7 @@ const Billing = () => {
 
   return (
     <Layout>
-      {/* Secondary Navigation */}
-      <nav className="mb-6">
-          <div className="bg-white p-2 rounded-lg shadow-sm flex items-center space-x-2 overflow-x-auto">
-            <Link to="/dashboard" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100"><FiBarChart2 className="mr-2" /> Dashboard</Link>
-            <Link to="/symptom-analysis" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100"><FiFileText className="mr-2" /> Symptom Analysis</Link>
-            <Link to="/inventory" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100"><FiArchive className="mr-2" /> Inventory</Link>
-            <Link to="/revenue" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100"><FiDollarSign className="mr-2" /> Revenue</Link>
-            <Link to="/medicine-db" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100"><FiHeart className="mr-2" /> Medicine DB</Link>
-            <Link to="/patient-details" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100"><FiUser className="mr-2" /> Patient Details</Link>
-            <Link to="/billing" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md bg-slate-100 font-medium"><FiDollarSign className="mr-2" /> Billing</Link>
-          </div>
-      </nav>
+    
 
       <main className="space-y-6">          
         <section className="bg-white p-6 rounded-lg shadow-sm">
@@ -178,7 +167,7 @@ const Billing = () => {
                 <button
                   onClick={() => handleAddMedicine(medicine)}
                   disabled={medicine.stock <= 0}
-                  className="bg-blue-500 text-white font-bold rounded-lg h-10 w-20 flex items-center justify-center hover:bg-blue-600 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
+                  className="bg-blue-500 text-black font-bold rounded-lg h-10 w-20 flex items-center justify-center hover:bg-blue-600 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
                 >
                   Add
                 </button>
@@ -243,7 +232,7 @@ const Billing = () => {
                     </div>
                     <button 
                         onClick={handleGenerateBill}
-                        className="w-full mt-6 flex items-center justify-center px-6 py-3 text-lg font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700"
+                        className="w-full mt-6 flex items-center justify-center px-6 py-3 text-lg font-semibold text-black bg-green-600 rounded-lg hover:bg-green-700"
                     >
                         <FiDollarSign className="mr-2" /> Generate Bill & Finalize
                     </button>

@@ -5,6 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 
+
 const SymptomAnalysis = () => {
     const navigate = useNavigate();
     const [symptoms, setSymptoms] = useState('');
@@ -67,29 +68,7 @@ const SymptomAnalysis = () => {
                 </Header>
 
                 <div className="flex-1 p-4 lg:p-6">
-                    {/* Secondary Navigation */}
-                    <nav className="mb-6">
-                        <div className="bg-white p-2 rounded-lg shadow-sm flex items-center space-x-2 overflow-x-auto">
-                            <Link to="/dashboard" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100">
-                                <FiBarChart2 className="mr-2" /> Dashboard
-                            </Link>
-                            <Link to="/symptom-analysis" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100 bg-slate-100 font-medium">
-                                <FiFileText className="mr-2" /> Symptom Analysis
-                            </Link>
-                            <Link to="/inventory" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100">
-                                <FiArchive className="mr-2" /> Inventory
-                            </Link>
-                             <Link to="/revenue" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100">
-                                <FiDollarSign className="mr-2" /> Revenue
-                            </Link>
-                            <Link to="/medicine-db" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100">
-                                <FiLink className="mr-2" /> Medicine DB
-                            </Link>
-                            <Link to="/patient-details" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100">
-                                <FiUser className="mr-2" /> Patient Details
-                            </Link>
-                        </div>
-                    </nav>
+                    
 
                     {/* Main Content */}
                     <main>
@@ -170,7 +149,7 @@ const SymptomAnalysis = () => {
                                 )}
                                 <button
                                     type="submit"
-                                    className="w-full flex items-center justify-center px-6 py-3 text-base font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-slate-400 disabled:cursor-not-allowed"
+                                    className="w-full flex items-center justify-center px-6 py-3 text-base font-semibold text-black bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-slate-400 disabled:cursor-not-allowed"
                                     disabled={!patientName || suggestions.length === 0 || isLoading}
                                 >
                                     <FiSave className="mr-2" />

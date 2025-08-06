@@ -29,6 +29,7 @@ const Inventory = () => {
   const API_URL = '/api/inventory'; 
 
   useEffect(() => {
+
     const fetchInitialData = async () => {
         setIsLoading(true);
         setError(null);
@@ -85,17 +86,7 @@ const Inventory = () => {
 
   return (
     <Layout>
-      {/* Secondary Navigation */}
-      <nav className="mb-6">
-        <div className="bg-white p-2 rounded-lg shadow-sm flex items-center space-x-2 overflow-x-auto">
-            <Link to="/dashboard" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100"><FiBarChart2 className="mr-2" /> Dashboard</Link>
-            <Link to="/symptom-analysis" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100"><FiFileText className="mr-2" /> Symptom Analysis</Link>
-            <Link to="/inventory" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md bg-slate-100 font-medium"><FiArchive className="mr-2" /> Inventory</Link>
-            <Link to="/revenue" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100"><FiDollarSign className="mr-2" /> Revenue</Link>
-            <Link to="/medicine-db" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100"><FiHeart className="mr-2" /> Medicine DB</Link>
-            <Link to="/patient-details" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100"><FiUser className="mr-2" /> Patient Details</Link>
-        </div>
-      </nav>
+   
 
       <main className="space-y-6">
         {/* Low Stock Alerts */}
@@ -163,7 +154,7 @@ const Inventory = () => {
                 <input type="number" id="minStock" value={formData.minStock} onChange={handleInputChange} placeholder="e.g., 10" className="w-full px-4 py-2 border border-slate-300 rounded-lg" />
               </div>
             </div>
-            <button type="submit" className="w-full mt-6 flex items-center justify-center px-6 py-3 text-lg font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+            <button type="submit" className="w-full mt-6 flex items-center justify-center px-6 py-3 text-lg font-semibold text-black bg-blue-600 rounded-lg hover:bg-blue-700">
               <FiPlus className="mr-2" /> Add to Inventory
             </button>
           </form>

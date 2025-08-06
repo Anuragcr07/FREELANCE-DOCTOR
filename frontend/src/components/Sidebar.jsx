@@ -45,6 +45,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             <NavItem to="/billing" icon={<FiDollarSign size={20} />}>Billing</NavItem>
             <NavItem to="/revenue" icon={<FiDollarSign size={20} />}>Revenue</NavItem>
             <NavItem to="/inventory" icon={<FiGrid size={20} />}>Inventory</NavItem>
+            <NavItem to="/symptom-analysis" icon={<FiGrid size={20} />}>Symptom Analysis</NavItem>
           </nav>
         </div>
         <div className="mt-auto">
