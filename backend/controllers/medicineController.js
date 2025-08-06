@@ -79,3 +79,19 @@ export const updateStockAfterBilling = async (req, res) => {
     res.status(500).json({ message: 'Server Error while updating stock', error });
   }
 };
+
+export const searchMedicines = async (req, res) => {
+  try {
+    const query = req.query.q; // Get the search term from the query parameter 'q'
+    if (!query) {
+      return res.status(400).json({ message: 'A search query "q" is required.' });
+    }
+    // This uses the text index you created in your medicineModel.js
+    const medicines = await Medicine.find({
+      $text: { $search: query }
+    });
+    res.json(medicines);
+  } catch (error) {
+    res.status(500).json({ message: 'Error during medicine search', error });
+  }
+};

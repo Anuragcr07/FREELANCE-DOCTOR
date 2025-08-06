@@ -11,7 +11,7 @@ import {
   FiBookOpen,
   FiTag
 } from 'react-icons/fi';
-import Layout from '../components/Layout'; // Use the reusable Layout
+import Layout from '../components/Layout';
 import { Link } from 'react-router-dom';
 
 const MedicineDB = () => {
@@ -20,15 +20,14 @@ const MedicineDB = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch all medicines on initial load
   useEffect(() => {
     const fetchMedicines = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const url = searchQuery
+        const url =  searchQuery
           ? `/api/medicines/search?q=${searchQuery}`
-          : '/api/medicines/all';
+          : '/api/medicines/';
         const response = await axios.get(url);
         setMedicines(response.data);
       } catch (err) {
@@ -40,7 +39,6 @@ const MedicineDB = () => {
       }
     };
 
-    // Debounce the search to avoid API calls on every keystroke
     const timerId = setTimeout(() => {
       fetchMedicines();
     }, 300);
@@ -53,7 +51,7 @@ const MedicineDB = () => {
       return <p className="text-center text-slate-500 py-8">Loading medicines...</p>;
     }
     if (error) {
-        return <p className="text-center text-red-500 py-8">{error}</p>;
+      return <p className="text-center text-red-500 py-8">{error}</p>;
     }
     if (medicines.length === 0) {
       return (
@@ -66,19 +64,21 @@ const MedicineDB = () => {
       <div key={med._id} className="border border-slate-200 rounded-lg p-4 transition-all hover:shadow-md hover:border-blue-300">
         <div className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-3">
           <div>
-            <h3 className="text-lg font-bold text-slate-800">{med.name}</h3>
-            {med.genericName && med.genericName !== 'N/A' && <p className="text-sm text-slate-500">{med.genericName}</p>}
+            {/* ✅ CORRECTED: Used `medicineName` to match the schema */}
+            <h3 className="text-lg font-bold text-slate-800">{med.medicineName}</h3>
+            {med.manufacturer && <p className="text-sm text-slate-500">by {med.manufacturer}</p>}
           </div>
           <div className="text-left sm:text-right flex-shrink-0">
              <p className="text-lg font-bold text-green-600">
                 ₹{med.price ? med.price.toFixed(2) : 'N/A'}
              </p>
+             {/* ✅ CORRECTED: Used `quantity` to match the schema */}
              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full mt-1 ${
-                med.stock > 0 
+                med.quantity > 0 
                 ? 'bg-green-100 text-green-800' 
                 : 'bg-red-100 text-red-800'
              }`}>
-                {med.stock > 0 ? `${med.stock} in stock` : 'Out of Stock'}
+                {med.quantity > 0 ? `${med.quantity} in stock` : 'Out of Stock'}
              </span>
           </div>
         </div>
@@ -107,6 +107,7 @@ const MedicineDB = () => {
             <Link to="/revenue" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100"><FiDollarSign className="mr-2" /> Revenue</Link>
             <Link to="/medicine-db" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md bg-slate-100 font-medium"><FiHeart className="mr-2" /> Medicine DB</Link>
             <Link to="/patient-details" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100"><FiUser className="mr-2" /> Patient Details</Link>
+            <Link to="/billing" className="flex-shrink-0 flex items-center justify-center w-full px-4 py-2 text-slate-600 rounded-md hover:bg-slate-100"><FiDollarSign className="mr-2" /> Billing</Link>
         </div>
       </nav>
 
@@ -124,7 +125,7 @@ const MedicineDB = () => {
           <input 
             type="text" 
             placeholder="Search by name, category, or use..."
-            className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />

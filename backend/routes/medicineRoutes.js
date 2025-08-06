@@ -4,13 +4,15 @@ import {
   addMedicine,
   getAllMedicines,
   getLowStockMedicines,
-  updateStockAfterBilling
+  updateStockAfterBilling,
+  searchMedicines
 } from '../controllers/medicineController.js';
 
 const router = express.Router();
 
 router.post('/add', addMedicine);
 router.get('/', getAllMedicines);
+router.get('/search', searchMedicines);
 router.get('/low-stock', getLowStockMedicines);
 router.patch('/update-stock', updateStockAfterBilling);
 

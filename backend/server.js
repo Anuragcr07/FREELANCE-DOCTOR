@@ -7,7 +7,6 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import medicineRoutes from './routes/medicineRoutes.js';
-import masterMedicineRoutes from './routes/masterMedicineRoutes.js';
 import symptomRoutes from './routes/symptomRoutes.js';
 import patientRoutes from './routes/patients.js';
 import transactionRoutes from './routes/transaction.routes.js';
@@ -23,7 +22,7 @@ app.use(express.json());
 
 
 app.use('/api/inventory', medicineRoutes);
-app.use('/api/medicines', masterMedicineRoutes);
+app.use('/api/medicines', medicineRoutes);
 app.use('/api/symptoms', symptomRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/transactions', transactionRoutes);

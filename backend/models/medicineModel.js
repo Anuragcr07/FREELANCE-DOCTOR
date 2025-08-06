@@ -14,7 +14,7 @@ const medicineSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-medicineSchema.index({ medicineName: 1, manufacturer: 1, category: 1 });
+medicineSchema.index({ medicineName: 'text', category: 'text', manufacturer: 'text' });
 
 const Medicine = mongoose.model('Medicine', medicineSchema);
 
