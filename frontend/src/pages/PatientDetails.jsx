@@ -3,8 +3,6 @@ import axios from 'axios';
 import { FiUsers, FiSearch, FiAlertTriangle } from 'react-icons/fi';
 import Layout from '../components/Layout';
 
-// No more imports for Header, Sidebar, or useNavigate for navigation buttons
-// No more imports for navigation icons like FiBarChart2, FiArchive, etc.
 
 const PatientDetails = () => {
     const [patients, setPatients] = useState([]);
@@ -12,7 +10,6 @@ const PatientDetails = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Sidebar state and toggle function are REMOVED. They belong in Layout.js.
 
     useEffect(() => {
         const fetchPatients = async () => {
@@ -74,8 +71,7 @@ const PatientDetails = () => {
         ));
     };
 
-    // The main return is now much cleaner.
-    // The parent div is gone. The Sidebar, Header, and <nav> are gone.
+ 
     return (
         <div className="bg-white p-6 sm:p-8 rounded-lg shadow-sm">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">

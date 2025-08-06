@@ -43,12 +43,9 @@ const Revenue = () => {
 
   const { todayRevenue, weekRevenue, monthRevenue, dailyTrends, recentTransactions } = stats;
   
-  // Calculate max height for the bar chart for scaling. Ensure it's not zero.
   const maxTrendValue = dailyTrends.length > 0 ? Math.max(...dailyTrends.map(d => d.dailyTotal)) : 1;
 
-  // Helper to format date strings correctly, avoiding timezone issues.
   const getDayLabel = (dateString) => {
-    // Adding T00:00:00 ensures the date is interpreted in local time, not UTC.
     const date = new Date(dateString + 'T00:00:00');
     return date.toLocaleDateString('en-US', { weekday: 'short' });
   };
@@ -74,14 +71,12 @@ const Revenue = () => {
 
       {/* Main Content */}
       <main className="p-4 space-y-6">
-        {/* ✅ This section is already responsive: 1 column on mobile, 3 on desktop. */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <StatCard title="Today's Revenue" value={`₹${todayRevenue.toFixed(2)}`} change="+25.0% from yesterday" icon={<FiDollarSign />} />
           <StatCard title="This Week" value={`₹${weekRevenue.toFixed(2)}`} change="+14.2% from last week" icon={<FiCalendar />} />
           <StatCard title="This Month" value={`₹${monthRevenue.toFixed(2)}`} change="+15.7% from last month" icon={<FiFileText />} />
         </div>
 
-        {/* ✅ This section is also responsive: 1 column on mobile, 3 on large screens. */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
                 <section className="bg-white p-6 rounded-lg shadow-sm">
@@ -95,7 +90,6 @@ const Revenue = () => {
                     <div>
                         <h3 className="text-xl font-bold text-slate-800">Daily Revenue Trends (Last 7 Days)</h3>
                         <p className="text-slate-500 mb-6">Revenue count by day</p>
-                        {/* ✅ RESPONSIVE FIX: Chart container with labels */}
                         <div className="h-72 w-full">
                             <div className="h-64 flex items-end justify-between space-x-2">
                                 {dailyTrends.map(trend => (
@@ -118,11 +112,9 @@ const Revenue = () => {
                         </div>
                     </div>
                 </section>
-                {/* You can add back the "Top Performing Medicines" section with new backend logic if needed */}
             </div>
             
             <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow-sm">
-                 {/* ✅ RESPONSIVE FIX: Header stacks vertically on small screens */}
                 <div className="flex flex-col items-start gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h3 className="text-xl font-bold text-slate-800">Recent Transactions</h3>
@@ -134,7 +126,6 @@ const Revenue = () => {
                 </div>
                 <div className="space-y-4">
                     {recentTransactions.map((trx) => (
-                        // ✅ RESPONSIVE FIX: Transaction items stack on small screens for readability
                         <div key={trx._id} className="flex flex-col items-start gap-2 border-b border-slate-100 pb-3 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex items-center">
                                 <p className="text-sm font-medium text-slate-500 w-20">{new Date(trx.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
@@ -157,13 +148,11 @@ const Revenue = () => {
   );
 };
 
-// StatCard component - This is already implicitly responsive due to the grid layout.
 const StatCard = ({ title, value, change, icon }) => (
   <div className="bg-white p-5 rounded-lg shadow-sm flex justify-between items-start">
     <div>
       <p className="text-sm font-medium text-slate-500">{title}</p>
       <p className="text-3xl font-bold text-slate-800 mt-1">{value}</p>
-      {/* This 'change' value is hardcoded, can be made dynamic later */}
       <div className="flex items-center mt-2 text-green-600">
         <FiArrowUp className="h-4 w-4" />
         <p className="text-sm font-semibold ml-1">{change}</p>

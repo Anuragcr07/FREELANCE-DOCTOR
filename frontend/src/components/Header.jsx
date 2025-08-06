@@ -1,13 +1,17 @@
 import React from 'react';
+import { FiChevronDown } from 'react-icons/fi';
 
-const Header = ({ title }) => {
+const Header = ({ children }) => {
   return (
-    <header className="bg-white p-6 shadow-sm flex justify-between items-center sticky top-0 z-10">
-      <h1 className="text-3xl font-bold text-gray-800">{title}</h1>
-      <div>
-        <button className="bg-white border border-green-500 text-green-600 font-semibold px-4 py-2 rounded-lg hover:bg-green-50 transition duration-200">
-          Store Manager
-        </button>
+    <header className="bg-white shadow-sm flex items-center justify-between p-4">
+      {/* Children will typically be the mobile menu button */}
+      <div>{children}</div>
+      
+      <div className="flex items-center">
+        <div className="flex items-center cursor-pointer text-slate-600 hover:text-slate-900">
+          <span className="font-medium">Store Manager</span>
+          <FiChevronDown className="ml-1" />
+        </div>
       </div>
     </header>
   );

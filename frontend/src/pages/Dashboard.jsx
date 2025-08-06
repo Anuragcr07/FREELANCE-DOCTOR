@@ -16,8 +16,7 @@ const Dashboard = () => {
     const fetchDashboardStats = async () => {
       try {
         setLoading(true);
-        // This is where you would fetch data from your API.
-        // For now, we use mock data to perfectly match the screenshot.
+     
         const mockData = {
           lowStockCount: 4,
           dailyRevenue: 1860.00,
