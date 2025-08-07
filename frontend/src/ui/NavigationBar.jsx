@@ -30,7 +30,7 @@ const NavigationBar = () => {
           ))}
           <a
             href="#demo"
-            className="bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700 transition duration-300 transform hover:scale-105"
+            className="bg-blue-600 text-black px-5 py-2 rounded-full hover:bg-black-700 transition duration-300 transform hover:scale-105"
           >
             Request a Demo
           </a>

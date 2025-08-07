@@ -13,7 +13,7 @@ const Hero = () => {
         <div className="mt-8">
           <a
             href="#contact"
-            className="bg-blue-600 text-white font-bold px-8 py-4 rounded-full text-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105 inline-block"
+            className="bg-blue-600 text-black font-bold px-8 py-4 rounded-full text-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105 inline-block"
           >
             Get Started
           </a>

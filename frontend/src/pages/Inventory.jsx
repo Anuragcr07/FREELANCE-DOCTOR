@@ -160,49 +160,6 @@ const Inventory = () => {
           </form>
         </section>
 
-        <section className="bg-white p-6 lg:p-8 rounded-lg shadow-sm">
-           <div className="mb-6">
-              <div className="flex items-center mb-2">
-                <FiBox className="h-7 w-7 text-green-600 mr-3" />
-                <h2 className="text-2xl font-bold text-slate-800">Current Inventory ({filteredInventory.length})</h2>
-              </div>
-              <p className="text-slate-500">Search and manage your medicine stock.</p>
-            </div>
-            <div className="relative mb-6">
-              <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input 
-                type="text" 
-                placeholder="Search by name, manufacturer, or category..."
-                className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-lg"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            
-            <div className="space-y-3">
-              {filteredInventory.length > 0 ? (
-                filteredInventory.map(item => (
-                  <div key={item._id} className="border border-slate-200 rounded-lg p-4">
-                      <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-2 mb-2">
-                          <div className="flex items-center">
-                              <h3 className="text-lg font-bold text-slate-800 mr-3">{item.medicineName}</h3>
-                              <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">{item.quantity} units</span>
-                          </div>
-                          <p className="text-lg font-bold text-green-600 text-left sm:text-right">₹{item.price.toFixed(2)}</p>
-                      </div>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-1 text-sm text-slate-600">
-                          <p><span className="font-semibold">By:</span> {item.manufacturer || 'N/A'}</p>
-                          <p><span className="font-semibold">Batch:</span> {item.batchNumber || 'N/A'}</p>
-                          <p><span className="font-semibold">Expires:</span> {item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</p>
-                          <p><span className="font-semibold">Category:</span> {item.category || 'N/A'}</p>
-                      </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-center text-slate-500 py-8">No inventory items match your search.</p>
-              )}
-            </div>
-        </section>
       </main>
     </Layout>
   );

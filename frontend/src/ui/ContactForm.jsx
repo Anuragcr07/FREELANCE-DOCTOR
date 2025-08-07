@@ -61,7 +61,7 @@ const ContactForm = () => {
             <div>
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105 focus:outline-none"
+                className="w-full bg-blue-600 text-black font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105 focus:outline-none"
               >
                 Login
               </button>
