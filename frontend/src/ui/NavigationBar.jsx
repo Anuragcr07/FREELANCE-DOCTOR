@@ -10,7 +10,6 @@ const NavigationBar = () => {
 
   const navLinks = [
     { href: '#features', label: 'Features' },
-    { href: '#testimonials', label: 'Testimonials' },
     { href: '#contact', label: 'Contact' },
   ];
 

@@ -9,7 +9,8 @@ import {
   FiUser,
   FiTrash2,
   FiPlusCircle,
-  FiMinusCircle
+  FiMinusCircle,
+  FiSave
 } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
@@ -78,6 +79,18 @@ const Billing = () => {
           item.id === itemId ? { ...item, quantity: newQuantity } : item
         )
       );
+    }
+  };
+  const handleClearBill = () => {
+    setBillItems([]);
+  };
+  const handleSaveBill = () => {
+    localStorage.setItem('billItems', JSON.stringify(billItems));
+  };
+  const handleLoadBill = () => {
+    const storedBillItems = localStorage.getItem('billItems');
+    if (storedBillItems) {
+      setBillItems(JSON.parse(storedBillItems));
     }
   };
 
@@ -235,6 +248,18 @@ const Billing = () => {
                         className="w-full mt-6 flex items-center justify-center px-6 py-3 text-lg font-semibold text-black bg-green-600 rounded-lg hover:bg-green-700"
                     >
                         <FiDollarSign className="mr-2" /> Generate Bill & Finalize
+                    </button>
+                    <button 
+                        onClick={handleClearBill}
+                        className="w-full mt-4 flex items-center justify-center px-6 py-3 text-lg font-semibold text-black bg-red-600 rounded-lg hover:bg-red-700"
+                    >
+                        <FiTrash2 className="mr-2" /> Clear Bill
+                    </button>
+                    <button 
+                        onClick={handleSaveBill}
+                        className="w-full mt-4 flex items-center justify-center px-6 py-3 text-lg font-semibold text-black bg-blue-600 rounded-lg hover:bg-blue-700"
+                    >
+                        <FiSave className="mr-2" /> Save Bill
                     </button>
                   </div>
                 </div>

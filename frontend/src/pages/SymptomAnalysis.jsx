@@ -15,14 +15,25 @@ const SymptomAnalysis = () => {
     const [age, setAge] = useState('');
     const [gender, setGender] = useState('');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [selectedMedicines, setSelectedMedicines] = useState([]);
+
+    const handleMedicineSelection = (medicine) => {
+        setSelectedMedicines(prevSelected => {
+            if (prevSelected.find(m => m._id === medicine._id)) {
+                return prevSelected.filter(m => m._id !== medicine._id);
+            } else {
+                return [...prevSelected, medicine];
+            }
+        });
+    };
 
     const handleSavePatient = async (e) => {
         e.preventDefault();
-        if (!patientName || suggestions.length === 0) {
-            alert('Please enter a patient name and ensure medicine suggestions are loaded before saving.');
+        if (!patientName || selectedMedicines.length === 0) {
+            alert('Please enter a patient name and select at least one medicine before saving.');
             return;
         }
-        const patientData = { patientName, age, gender, symptoms, recommendedMedicines: suggestions };
+        const patientData = { patientName, age, gender, symptoms, recommendedMedicines: selectedMedicines };
         try {
             const response = await axios.post('/api/patients/add', patientData);
             console.log('Patient saved:', response.data);
@@ -59,8 +70,8 @@ const SymptomAnalysis = () => {
 
             <div className="flex-1 flex flex-col">
                 <Header>
-                    <button 
-                        onClick={() => setIsSidebarOpen(true)} 
+                    <button
+                        onClick={() => setIsSidebarOpen(true)}
                         className="p-2 rounded-md text-slate-600 hover:bg-slate-100 focus:outline-none lg:hidden"
                     >
                         <FiMenu className="h-6 w-6" />
@@ -68,7 +79,7 @@ const SymptomAnalysis = () => {
                 </Header>
 
                 <div className="flex-1 p-4 lg:p-6">
-                    
+
 
                     {/* Main Content */}
                     <main>
@@ -142,6 +153,12 @@ const SymptomAnalysis = () => {
                                                         <p className="font-bold text-slate-700">{med.medicineName}</p>
                                                         <p className="text-sm text-slate-500">Category: {med.category}</p>
                                                     </div>
+                                                    <input
+                                                        type="checkbox"
+                                                        className="form-checkbox h-5 w-5 text-blue-600"
+                                                        onChange={() => handleMedicineSelection(med)}
+                                                        checked={selectedMedicines.some(m => m._id === med._id)}
+                                                    />
                                                 </li>
                                             ))}
                                         </ul>
@@ -150,7 +167,7 @@ const SymptomAnalysis = () => {
                                 <button
                                     type="submit"
                                     className="w-full flex items-center justify-center px-6 py-3 text-base font-semibold text-black bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-slate-400 disabled:cursor-not-allowed"
-                                    disabled={!patientName || suggestions.length === 0 || isLoading}
+                                    disabled={!patientName || selectedMedicines.length === 0 || isLoading}
                                 >
                                     <FiSave className="mr-2" />
                                     Save Patient Details
