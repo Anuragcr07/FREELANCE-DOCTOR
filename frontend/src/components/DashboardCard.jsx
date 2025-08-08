@@ -1,29 +1,18 @@
 import React from 'react';
 
-const DashboardCard = ({ title, value, subtitle, icon, color, isActionCard = false }) => {
-  if (isActionCard) {
-    return (
-        <div className={`${color} p-4 rounded-xl text-white shadow-md flex items-center cursor-pointer hover:opacity-90 transition-opacity`}>
-            <div className='p-3 bg-black bg-opacity-20 rounded-lg mr-4'>
-                {React.cloneElement(icon, { size: 24 })}
-            </div>
-            <div>
-                <h3 className="text-lg font-semibold">{title}</h3>
-                <p className="text-sm opacity-90">{subtitle}</p>
-            </div>
-        </div>
-    );
-  }
-
+const DashboardCard = ({ title, value, subtitle, icon, trend, colorClass }) => {
   return (
-    <div className={`${color} text-white p-6 rounded-xl shadow-lg flex flex-col justify-between`}>
+    <div className={`p-5 rounded-xl shadow-sm flex flex-col justify-between ${colorClass}`}>
       <div className="flex justify-between items-start">
-        <h3 className="font-semibold text-lg">{title}</h3>
-        <div className="text-3xl opacity-70">{icon}</div>
+        <h3 className="text-lg font-semibold text-gray-700">{title}</h3>
+        <div className="text-2xl text-gray-600">{icon}</div>
       </div>
       <div>
-        <p className="text-4xl font-bold">{value}</p>
-        <p className="text-sm opacity-90 mt-1">{subtitle}</p>
+        <p className="text-4xl font-bold text-gray-900">{value}</p>
+        <div className="flex items-center text-sm text-gray-600 mt-1">
+            {trend && <span className="mr-2">{trend.icon}</span>}
+            <span>{subtitle}</span>
+        </div>
       </div>
     </div>
   );
