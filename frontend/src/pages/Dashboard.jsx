@@ -3,7 +3,6 @@ import Header from '../components/Header';
 import DashboardCard from '../components/DashboardCard';
 import QuickActions from '../components/QuickActions';
 import WeeklyRevenueChart from '../components/WeeklyRevenueChart';
-import StockLevelsChart from '../components/StockLevelsChart';
 import CriticalStockAlerts from '../components/CriticalStockAlerts';
 import {
   FiBox,
@@ -105,7 +104,6 @@ const Dashboard = () => {
             <WeeklyRevenueChart />
           </div>
           <div className="lg:col-span-2 space-y-8">
-             <StockLevelsChart />
              <CriticalStockAlerts />
           </div>
         </div>
