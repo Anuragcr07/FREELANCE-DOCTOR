@@ -26,7 +26,7 @@ const Billing = () => {
     const fetchMedicines = async () => {
       setLoading(true);
       try {
-        const response = await fetch('http://localhost:5000/api/inventory');
+        const response = await fetch('https://freelance-doctor-07.onrender.com/api/inventory');
         if (!response.ok) throw new Error('Failed to fetch inventory.');
         const data = await response.json();
         setMedicines(data.map(med => ({
@@ -98,12 +98,12 @@ const Billing = () => {
       return;
     }
     try {
-      await fetch('http://localhost:5000/api/inventory/update-stock', {
+      await fetch('https://freelance-doctor-07.onrender.com/api/inventory/update-stock', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ billItems: billItems.map(item => ({ id: item.id, quantity: item.quantity })) }),
       });
-      await fetch('http://localhost:5000/api/transactions', {
+      await fetch('https://freelance-doctor-07.onrender.com/api/transactions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -141,7 +141,7 @@ const handleSaveStockAndRevenue = async () => {
 
   try {
     // 1. Update stock
-    await fetch("http://localhost:5000/api/inventory/update-stock", {
+    await fetch("https://freelance-doctor-07.onrender.com/api/inventory/update-stock", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -153,7 +153,7 @@ const handleSaveStockAndRevenue = async () => {
     });
 
     // 2. Update revenue
-   await fetch('http://localhost:5000/api/transactions', {
+   await fetch('https://freelance-doctor-07.onrender.com/api/transactions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

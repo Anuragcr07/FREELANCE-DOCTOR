@@ -19,12 +19,15 @@ const app = express();
 
 const __dirname = path.resolve();
 
+const corsOptions = {
+  origin: "https://freelance-doctor-07.onrender.com",
+  Credentials: true
+};
+
 
 
 app.use(cors(
-  {
-    origin: '*'
-  }
+ corsOptions
 ));
 app.use(express.json());
 
