@@ -11,10 +11,14 @@ import symptomRoutes from './routes/symptomRoutes.js';
 import patientRoutes from './routes/patients.js';
 import transactionRoutes from './routes/transaction.routes.js';
 import statsRoutes from './routes/stats.routes.js';
+import path from 'path';
 
 
 
 const app = express();
+
+const __dirname = path.resolve();
+
 
 
 app.use(cors(
@@ -31,6 +35,10 @@ app.use('/api/symptoms', symptomRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/stats', statsRoutes);
+app.use(express.static(path.join(__dirname, "/frontend/dist")));
+app.get('/*splat', (req, res) => {
+  res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+})
 
 
 const PORT = process.env.PORT || 5000;
