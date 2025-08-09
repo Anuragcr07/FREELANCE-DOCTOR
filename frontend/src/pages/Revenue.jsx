@@ -112,9 +112,7 @@ const Revenue = () => {
                             <h3 className="text-xl font-bold text-slate-800">Recent Transactions</h3>
                             <p className="text-slate-500">Latest sales activity</p>
                         </div>
-                        <button className="flex items-center px-3 py-1.5 text-sm font-semibold text-slate-700 bg-slate-100 border border-slate-200 rounded-md hover:bg-slate-200">
-                            <FiDownload className="mr-2" /> Export
-                        </button>
+                       
                     </div>
                     <div className="space-y-4">
                         {recentTransactions.map((trx) => (
