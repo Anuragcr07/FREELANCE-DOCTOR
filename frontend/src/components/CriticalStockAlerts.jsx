@@ -20,7 +20,7 @@ const CriticalStockAlerts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const API_URL = '/api/inventory/low-stock'; // same as used in Inventory
+  const API_URL = '/api/inventory/low-stock'; 
 
   useEffect(() => {
     const fetchAlerts = async () => {

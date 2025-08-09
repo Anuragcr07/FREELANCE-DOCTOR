@@ -1,7 +1,5 @@
-// ✅ FIX: Ensure the model is imported correctly.
 import Transaction from '../models/transaction.model.js';
 
-// ✅ FIX: Export the function so it can be used in your routes.
 export const createTransaction = async (req, res) => {
   try {
     const { items, totalAmount, patientName, phoneNumber } = req.body;

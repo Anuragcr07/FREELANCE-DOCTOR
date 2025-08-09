@@ -132,7 +132,7 @@ const Billing = () => {
   };
 
   // NEW: Save stock & revenue only
-  // ✅ New function to update stock & revenue only
+  // New function to update stock & revenue only
 const handleSaveStockAndRevenue = async () => {
   if (billItems.length === 0) {
     alert("No items in the bill to save.");

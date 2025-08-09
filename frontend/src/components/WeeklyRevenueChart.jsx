@@ -8,7 +8,6 @@ const WeeklyRevenueChart = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Helper function to get short weekday name
   const getDayLabel = (dateString) => {
     const date = new Date(dateString + 'T00:00:00'); 
     return date.toLocaleDateString('en-US', { weekday: 'short' });
@@ -23,7 +22,6 @@ const WeeklyRevenueChart = () => {
         if (!res.ok) throw new Error('Failed to fetch revenue data.');
         
         const data = await res.json();
-        // Convert dailyTrends from API to recharts format
         const formatted = data.dailyTrends.map(d => ({
           name: getDayLabel(d._id),
           revenue: d.dailyTotal

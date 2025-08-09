@@ -59,7 +59,7 @@ const Dashboard = () => {
         {error && <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">{error}</div>}
 
         {/* Stat Cards Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
             <DashboardCard
               title="Total Medicines"
               value={stats?.totalMedicines}

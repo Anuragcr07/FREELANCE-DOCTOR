@@ -1,11 +1,9 @@
-// ✅ FIX: Ensure the model is imported correctly.
 import Transaction from '../models/transaction.model.js';
 // You will likely need other models here for the full dashboard.
 import Inventory from '../models/medicineModel.js'; 
 import Activity from '../models/activity.model.js';
 
 
-// ✅ FIX: Export the function.
 export const getRevenueStats = async (req, res) => {
   try {
     const today = new Date();

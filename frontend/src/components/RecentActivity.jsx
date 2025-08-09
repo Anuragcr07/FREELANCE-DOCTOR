@@ -2,7 +2,6 @@ import React from 'react';
 import { FiLink, FiPlusCircle, FiAlertTriangle } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
 
-// A helper component to render different activity types
 const ActivityItem = ({ activity }) => {
   let icon, bgColor, textColor, detailsNode;
 

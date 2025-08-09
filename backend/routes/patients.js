@@ -1,10 +1,10 @@
-// routes/patients.js
+
 import express from 'express';
 import Patient from '../models/Patient.js'; // You'll need a Patient model (schema)
 
 const router = express.Router();
 
-// GET all patients (with search)
+
 router.get('/', async (req, res) => {
     try {
         const { search } = req.query;
@@ -24,7 +24,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// POST a new patient
+
 router.post('/add', async (req, res) => {
     const patient = new Patient({
         patientName: req.body.patientName,

@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 const ActionButton = ({ icon, title, subtitle, colorClass, onClick }) => (
   <div 
     className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center text-center hover:shadow-lg transition-shadow cursor-pointer"
-    onClick={onClick} // <-- Use the onClick prop here
+    onClick={onClick} 
   >
     <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-white text-3xl mb-4 ${colorClass}`}>
       {icon}
@@ -18,19 +18,18 @@ const ActionButton = ({ icon, title, subtitle, colorClass, onClick }) => (
 
 
 const QuickActions = () => {
-  // SOLUTION FOR ISSUE #1:
-  // Move the hook inside the component.
+
   const navigate = useNavigate(); 
 
   return (
     <div className="bg-transparent rounded-xl">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-6">
         <ActionButton 
           icon={<FiFileText />} 
           title="Patient Management" 
           subtitle="Add patient details" 
           colorClass="bg-blue-500"  
-          onClick={() => navigate('/patient-details')} // This will now work correctly
+          onClick={() => navigate('/patient-details')}
         />
         <ActionButton 
           icon={<FiCamera />} 

@@ -3,14 +3,14 @@ import mongoose from 'mongoose';
 const activitySchema = new mongoose.Schema({
   type: {
     type: String,
-    enum: ['sale', 'stock_add', 'low_stock'], // Defines the possible activity types
+    enum: ['sale', 'stock_add', 'low_stock'], 
     required: true,
   },
   message: {
     type: String,
     required: true,
   },
-  details: { // A flexible field for values like "+100 units", "₹120", etc.
+  details: { 
     type: String, 
     default: ''
   },
