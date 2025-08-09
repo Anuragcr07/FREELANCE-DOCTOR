@@ -32,6 +32,7 @@ app.use('/api/patients', patientRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/stats', statsRoutes);
 
+
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 

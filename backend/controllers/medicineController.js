@@ -82,16 +82,51 @@ export const updateStockAfterBilling = async (req, res) => {
 
 export const searchMedicines = async (req, res) => {
   try {
-    const query = req.query.q; // Get the search term from the query parameter 'q'
+    const query = req.query.q;
     if (!query) {
       return res.status(400).json({ message: 'A search query "q" is required.' });
     }
-    // This uses the text index you created in your medicineModel.js
+
+    // Partial + case-insensitive search
     const medicines = await Medicine.find({
-      $text: { $search: query }
+      medicineName: { $regex: query, $options: 'i' }
     });
+
     res.json(medicines);
   } catch (error) {
     res.status(500).json({ message: 'Error during medicine search', error });
+  }
+};
+
+/**
+ * @desc    Restock a single medicine
+ * @route   PATCH /api/medicines/:id/restock
+ * @access  Public (or Protected in real app)
+ */
+export const restockMedicine = async (req, res) => {
+  const { id } = req.params;
+  const { quantityToAdd } = req.body;
+
+  if (!quantityToAdd || quantityToAdd <= 0) {
+    return res.status(400).json({ message: 'Quantity to add must be greater than 0.' });
+  }
+
+  try {
+    const updatedMedicine = await Medicine.findByIdAndUpdate(
+      id,
+      { $inc: { quantity: quantityToAdd } },
+      { new: true }
+    );
+
+    if (!updatedMedicine) {
+      return res.status(404).json({ message: 'Medicine not found' });
+    }
+
+    res.json({
+      message: 'Medicine restocked successfully',
+      medicine: updatedMedicine
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error while restocking', error });
   }
 };

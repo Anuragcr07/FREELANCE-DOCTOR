@@ -1,18 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { 
-  FiBarChart2, 
-  FiFileText, 
-  FiArchive, 
-  FiDollarSign, 
-  FiHeart, 
-  FiUser,
-  FiSearch,
   FiBookOpen,
+  FiSearch,
   FiTag
 } from 'react-icons/fi';
 import Layout from '../components/Layout';
-import { Link } from 'react-router-dom';
 
 const MedicineDB = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,31 +13,54 @@ const MedicineDB = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchMedicines = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const url =  searchQuery
-          ? `/api/medicines/search?q=${searchQuery}`
-          : '/api/medicines/';
-        const response = await axios.get(url);
-        setMedicines(response.data);
-      } catch (err) {
-        console.error("Error fetching medicines:", err);
-        setError('Failed to load medicine data. Please try again.');
-        setMedicines([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchMedicines = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const url = searchQuery
+        ? `/api/medicines/search?q=${encodeURIComponent(searchQuery)}`
+        : '/api/medicines/';
+      const response = await axios.get(url);
+      setMedicines(response.data);
+    } catch (err) {
+      console.error("Error fetching medicines:", err);
+      setError('Failed to load medicine data. Please try again.');
+      setMedicines([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [searchQuery]); 
 
+  useEffect(() => {
     const timerId = setTimeout(() => {
       fetchMedicines();
     }, 300);
 
     return () => clearTimeout(timerId);
-  }, [searchQuery]); 
+  }, [fetchMedicines]); // The effect runs whenever fetchMedicines changes (i.e., when searchQuery changes).
+
+  const handleRestock = async (id, medicineName) => {
+    const quantityStr = prompt(`Enter quantity to add for ${medicineName}:`);
+    if (quantityStr === null) return; // User cancelled the prompt
+
+    const quantityToAdd = parseInt(quantityStr, 10);
+
+    if (isNaN(quantityToAdd) || quantityToAdd <= 0) {
+      alert("Invalid quantity. Please enter a number greater than 0.");
+      return;
+    }
+
+    try {
+      const res = await axios.patch(`/api/medicines/${id}/restock`, { quantityToAdd });
+      alert(`Stock updated! New quantity for ${res.data.medicine.medicineName}: ${res.data.medicine.quantity}`);
+      
+      fetchMedicines();
+
+    } catch (err) {
+      console.error("Error restocking medicine:", err);
+      alert("Failed to restock medicine. See console for details.");
+    }
+  };
 
   const renderMedicineList = () => {
     if (isLoading) {
@@ -61,36 +77,50 @@ const MedicineDB = () => {
       );
     }
     return medicines.map(med => (
-      <div key={med._id} className="border border-slate-200 rounded-lg p-4 transition-all hover:shadow-md hover:border-blue-300">
+      <div 
+        key={med._id} 
+        className="border border-slate-200 rounded-lg p-4 transition-all hover:shadow-md hover:border-blue-300"
+      >
         <div className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-3">
           <div>
-            {/* ✅ CORRECTED: Used `medicineName` to match the schema */}
             <h3 className="text-lg font-bold text-slate-800">{med.medicineName}</h3>
             {med.manufacturer && <p className="text-sm text-slate-500">by {med.manufacturer}</p>}
           </div>
           <div className="text-left sm:text-right flex-shrink-0">
-             <p className="text-lg font-bold text-green-600">
-                ₹{med.price ? med.price.toFixed(2) : 'N/A'}
-             </p>
-             {/* ✅ CORRECTED: Used `quantity` to match the schema */}
-             <span className={`text-xs font-semibold px-2.5 py-1 rounded-full mt-1 ${
-                med.quantity > 0 
+            <p className="text-lg font-bold text-green-600">
+              ₹{med.price ? med.price.toFixed(2) : 'N/A'}
+            </p>
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full mt-1 ${
+              med.quantity > med.minStock 
                 ? 'bg-green-100 text-green-800' 
+                : med.quantity > 0
+                ? 'bg-yellow-100 text-yellow-800'
                 : 'bg-red-100 text-red-800'
-             }`}>
-                {med.quantity > 0 ? `${med.quantity} in stock` : 'Out of Stock'}
-             </span>
+            }`}>
+              {med.quantity > 0 ? `${med.quantity} in stock` : 'Out of Stock'}
+            </span>
           </div>
         </div>
         <div className="text-sm text-slate-600 space-y-2 mt-2">
-          {med.indications && med.indications !== 'N/A' && <p><span className="font-semibold">Used for:</span> {med.indications}</p>}
+          {med.indications && med.indications !== 'N/A' && (
+            <p><span className="font-semibold">Used for:</span> {med.indications}</p>
+          )}
           <p>
-              <span className="font-semibold">Category:</span> 
-              <span className="ml-2 inline-flex items-center bg-slate-100 text-slate-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                  <FiTag className="mr-1.5 h-3 w-3"/>{med.category || 'Uncategorized'}
-              </span>
+            <span className="font-semibold">Category:</span> 
+            <span className="ml-2 inline-flex items-center bg-slate-100 text-slate-800 text-xs font-medium px-2 py-0.5 rounded-full">
+              <FiTag className="mr-1.5 h-3 w-3"/>{med.category || 'Uncategorized'}
+            </span>
           </p>
           {med.isRx && <p className="font-semibold text-blue-600">Requires Prescription (Rx)</p>}
+        </div>
+        {/* Usability Improvement: A clear button is better than a clickable div */}
+        <div className="mt-4 text-right">
+            <button
+                onClick={() => handleRestock(med._id, med.medicineName)}
+                className="bg-blue-500 text-black font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-sm"
+            >
+                Restock
+            </button>
         </div>
       </div>
     ));
@@ -98,9 +128,6 @@ const MedicineDB = () => {
 
   return (
     <Layout>
-    
-
-      {/* Main Content Area */}
       <main className="bg-white p-6 lg:p-8 rounded-lg shadow-sm">
         <div className="mb-6">
           <div className="flex items-center mb-2">
@@ -119,7 +146,6 @@ const MedicineDB = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-          
         <div className="space-y-4">
           {renderMedicineList()}
         </div>
