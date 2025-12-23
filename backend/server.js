@@ -12,6 +12,7 @@ import patientRoutes from './routes/patients.js';
 import transactionRoutes from './routes/transaction.routes.js';
 import statsRoutes from './routes/stats.routes.js';
 import path from 'path';
+import authRoutes from './routes/auth.js';
 
 
 
@@ -31,7 +32,7 @@ app.use(cors(
 ));
 app.use(express.json());
 
-
+app.use('/api/auth', authRoutes);
 app.use('/api/inventory', medicineRoutes);
 app.use('/api/medicines', medicineRoutes);
 app.use('/api/symptoms', symptomRoutes);

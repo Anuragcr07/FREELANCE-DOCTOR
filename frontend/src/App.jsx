@@ -9,6 +9,9 @@ import MedicineDB from './pages/MedicineDB';
 import PatientDetails from './pages/PatientDetails';
 import Billing from './pages/Billing'; // Assuming you have a Billing page
 import Landingpage from './pages/landingpage';
+import Signup from './pages/Signup';
+import Login from './pages/Login';
+import VerifyEmail from './pages/VerifyEmail';
 
 
 function App() {
@@ -20,6 +23,8 @@ function App() {
           <main className="flex-1 w-full overflow-y-auto bg-gray-50 px-4">
             <Routes>
               <Route path="/" element={<Landingpage />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/login" element={<Login />} />
               <Route path="/dashboard" element={<Dashboard />} />
               
               <Route path="/symptom-analysis" element={<SymptomAnalysis />} />
@@ -28,6 +33,7 @@ function App() {
               <Route path="/medicine-db" element={<MedicineDB />} />
               <Route path="/patient-details" element={<PatientDetails />} />
               <Route path="/Billing" element={<Billing />} />
+              <Route path="/verify-email/:token" element={<VerifyEmail />} />
             </Routes>
           </main>
         </div>
