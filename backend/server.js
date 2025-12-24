@@ -1,10 +1,10 @@
 // backend/server.js
+import dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import dotenv from 'dotenv';
 
-dotenv.config();
 
 import medicineRoutes from './routes/medicineRoutes.js';
 import symptomRoutes from './routes/symptomRoutes.js';
@@ -21,8 +21,9 @@ const app = express();
 const __dirname = path.resolve();
 
 const corsOptions = {
-  origin: "https://freelance-doctor-07.onrender.com",
-  Credentials: true
+  origin: ["http://localhost:5173","https://freelance-doctor-07.onrender.com"],
+  credentials: true,
+  optionSuccessStatus: 200,
 };
 
 
