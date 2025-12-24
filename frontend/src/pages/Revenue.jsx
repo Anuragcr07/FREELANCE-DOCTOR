@@ -41,7 +41,7 @@ const Revenue = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch('https://freelance-doctor-07.onrender.com/api/stats/revenue');
+        const response = await fetch('https://freelance-doctor-2.onrender.com/api/stats/revenue');
         if (!response.ok) {
           throw new Error('Failed to fetch revenue data. Please ensure the server is running.');
         }

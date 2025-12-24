@@ -26,7 +26,7 @@ const Billing = () => {
     const fetchMedicines = async () => {
       setLoading(true);
       try {
-        const response = await fetch('https://freelance-doctor-07.onrender.com/api/inventory');
+        const response = await fetch('https://freelance-doctor-2.onrender.com/api/inventory');
         if (!response.ok) throw new Error('Failed to fetch inventory.');
         const data = await response.json();
         setMedicines(data.map(med => ({

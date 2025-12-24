@@ -10,7 +10,7 @@ const VerifyEmail = () => {
     useEffect(() => {
         const verify = async () => {
             try {
-                await axios.get(`http://localhost:5000/api/auth/verify/${token}`);
+                await axios.get(`https://freelance-doctor-2.onrender.com/api/auth/verify/${token}`);
                 setStatus('Email Verified Successfully!');
             } catch (err) {
                 setStatus('Verification failed. The link may have expired.');
