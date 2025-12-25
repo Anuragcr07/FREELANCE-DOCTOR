@@ -15,7 +15,7 @@ const Login = () => {
 
         try {
             // Replace with your actual backend URL (e.g., https://your-app.onrender.com)
-            const res = await axios.post('https://freelance-doctor-2.onrender.com/api/auth/login', formData);
+            const res = await axios.post('http://localhost:5000/api/auth/login', formData);
             
             // 1. Save the token and user info to LocalStorage
             localStorage.setItem('token', res.data.token);

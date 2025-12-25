@@ -23,7 +23,7 @@ const Dashboard = () => {
     const fetchDashboardStats = async () => {
       try {
         setLoading(true);
-        const response = await fetch("https://freelance-doctor-2.onrender.com/api/stats/dashboard");
+        const response = await fetch("http://localhost:5000/api/stats/dashboard");
         if (!response.ok) throw new Error("Failed to fetch dashboard stats");
         const data = await response.json();
         setStats(data);
