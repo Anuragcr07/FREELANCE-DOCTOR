@@ -38,7 +38,7 @@ router.post('/signup', async (req, res) => {
       },
     });
 
-    const frontendUrl = process.env.FRONTEND_URL || "https://freelance-doctor-7.onrender.com";
+    const frontendUrl ="https://freelance-doctor-7.onrender.com";
     const url = `${frontendUrl}/verify-email/${token}`;
 
     await transporter.sendMail({
