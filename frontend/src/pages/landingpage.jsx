@@ -2,29 +2,31 @@ import React from 'react';
 import NavigationBar from '../ui/NavigationBar';
 import Hero from '../ui/Hero';
 import Features from '../ui/Features';
-import ContactForm from '../ui/ContactForm';
+import Testimonials from '../ui/Testimonials';
 import Footer from '../ui/Footer';
 
 const LandingPage = () => {
   return (
     <div className="min-h-screen bg-white font-sans antialiased text-slate-900">
       <NavigationBar />
-
       <main>
-        <div className="relative">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-gradient-to-b from-blue-50/50 to-transparent -z-10" />
+        {/* Hero Section with Grid Background */}
+        <div className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
           <Hero />
         </div>
 
-        <div className="py-20 bg-slate-50">
+        {/* Features Section */}
+        <div className="py-24 bg-white">
           <Features />
         </div>
 
-        <div className="py-20">
-          <ContactForm />
+        {/* Testimonials Section with Grid Pattern */}
+        <div className="py-24 bg-slate-50/50 relative">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]" />
+          <Testimonials />
         </div>
       </main>
-
       <Footer />
     </div>
   );
