@@ -12,7 +12,7 @@ const Sidebar = () => {
     { to: "/inventory", icon: <Package size={20} />, label: "Inventory" },
     { to: "/billing", icon: <DollarSign size={20} />, label: "Billing" },
     { to: "/revenue", icon: <BarChart2 size={20} />, label: "Analytics" },
-    { to: "/settings", icon: <Settings size={20} />, label: "Settings" },
+    { to: "/symptom-analysis", icon: <HelpCircle size={20} />, label: "Symptom Analysis" },
   ];
 
   return (
