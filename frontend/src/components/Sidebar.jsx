@@ -1,56 +1,59 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { FiGrid, FiLink, FiUser, FiDollarSign, FiLogOut, FiX } from 'react-icons/fi';
+import { 
+  LayoutDashboard, Pill, Users, Package, 
+  DollarSign, BarChart2, Settings, HelpCircle, ChevronLeft 
+} from 'lucide-react';
 
-const NavItem = ({ to, icon, children }) => (
-  <NavLink
-    to={to}
-    className={({ isActive }) =>
-      `flex items-center px-4 py-3 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors duration-200 ${
-        isActive ? 'bg-blue-100 text-blue-600 font-semibold' : ''
-      }`
-    }
-  >
-    {icon}
-    <span className="ml-3">{children}</span>
-  </NavLink>
-);
+const Sidebar = () => {
+  const menuItems = [
+    { to: "/dashboard", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
+    { to: "/patient-details", icon: <Users size={20} />, label: "Patients" },
+    { to: "/inventory", icon: <Package size={20} />, label: "Inventory" },
+    { to: "/billing", icon: <DollarSign size={20} />, label: "Billing" },
+    { to: "/revenue", icon: <BarChart2 size={20} />, label: "Analytics" },
+    { to: "/settings", icon: <Settings size={20} />, label: "Settings" },
+  ];
 
-const Sidebar = ({ isOpen, setIsOpen }) => {
   return (
-    <>
-      <div 
-        className={`fixed inset-0 bg-black bg-opacity-30 z-30 lg:hidden ${isOpen ? 'block' : 'hidden'}`}
-        onClick={() => setIsOpen(false)}
-      ></div>
+    <aside className="w-64 bg-white border-r border-slate-100 flex flex-col p-6 h-screen sticky top-0">
+      <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center gap-2 group cursor-pointer">
+          <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-100 group-hover:rotate-12 transition-transform">
+            <Pill size={22} />
+          </div>
+          <span className="font-bold text-xl text-slate-800 tracking-tight">MedFlow</span>
+        </div>
+        <ChevronLeft size={18} className="text-slate-300 hover:text-slate-600 cursor-pointer" />
+      </div>
 
-      <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-slate-200 p-4 flex flex-col justify-between z-40 transition-transform duration-300 ease-in-out ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 lg:static`}
-      >
-        <div>
-           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-xl font-bold text-slate-800">MyClinic</h1>
-            <button onClick={() => setIsOpen(false)} className="lg:hidden text-slate-500 hover:text-slate-800">
-                <FiX size={24}/>
-            </button>
-           </div>
-          <nav className="space-y-2">
-            <NavItem to="/dashboard" icon={<FiGrid size={20} />}>Dashboard</NavItem>
-            <NavItem to="/medicine-db" icon={<FiLink size={20} />}>Medicine DB</NavItem>
-            <NavItem to="/patient-details" icon={<FiUser size={20} />}>Patient Details</NavItem>
-            <NavItem to="/billing" icon={<FiDollarSign size={20} />}>Billing</NavItem>
-            <NavItem to="/revenue" icon={<FiDollarSign size={20} />}>Revenue</NavItem>
-            <NavItem to="/inventory" icon={<FiGrid size={20} />}>Inventory</NavItem>
-            <NavItem to="/symptom-analysis" icon={<FiGrid size={20} />}>Symptom Analysis</NavItem>
-          </nav>
+      <nav className="flex-1 space-y-1.5">
+        {menuItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) => `
+              flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
+              ${isActive 
+                ? 'bg-emerald-50 text-emerald-600 shadow-sm shadow-emerald-50' 
+                : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'}
+            `}
+          >
+            {item.icon}
+            <span className="font-bold text-sm">{item.label}</span>
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="mt-auto p-4 bg-emerald-50/50 rounded-2xl border border-emerald-50">
+        <p className="text-[10px] font-bold text-emerald-600 mb-1 uppercase tracking-wider">Need help?</p>
+        <p className="text-[10px] text-slate-500 mb-3 leading-relaxed">Check documentation for quick answers.</p>
+        <div className="flex justify-between items-center">
+          <HelpCircle size={16} className="text-emerald-400" />
+          <span className="text-[10px] font-bold text-emerald-600 underline cursor-pointer">Support</span>
         </div>
-        <div className="mt-auto">
-          <NavItem to="/" icon={<FiLogOut size={20} />}>Logout</NavItem>
-        </div>
-      </aside>
-    </>
+      </div>
+    </aside>
   );
 };
 

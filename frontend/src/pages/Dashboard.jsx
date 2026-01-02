@@ -1,110 +1,95 @@
 import React, { useState, useEffect } from 'react';
+import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
-import DashboardCard from '../components/DashboardCard';
-import QuickActions from '../components/QuickActions';
-import WeeklyRevenueChart from '../components/WeeklyRevenueChart';
+import StatCard from '../components/StatCard';
 import CriticalStockAlerts from '../components/CriticalStockAlerts';
-import {
-  FiBox,
-  FiAlertTriangle,
-  FiDollarSign,
-  FiUsers,
-  FiArrowUp,
-  FiShoppingCart,
-  FiClock
-} from 'react-icons/fi';
+import WeeklyRevenueChart from '../components/WeeklyRevenueChart'; // Import verified
+import { Users, DollarSign, Package, Activity, Plus, Pill, FileText } from 'lucide-react';
 
 const Dashboard = () => {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchDashboardStats = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch("http://localhost:5000/api/stats/dashboard");
-        if (!response.ok) throw new Error("Failed to fetch dashboard stats");
-        const data = await response.json();
-        setStats(data);
-      } catch (err) {
-        console.error(err.message);
-        setError("Could not load live data. Displaying sample data.");
-        setStats({
-          totalMedicines: 1247,
-          lowStockCount: 23,
-          dailyRevenue: 15420,
-          patientsServed: 89,
-          pendingOrders: 12,
-          expiringSoon: 8,
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDashboardStats();
-  }, []);
-
-  if (loading) return <div className="flex justify-center items-center h-screen"><div className="text-xl">Loading Dashboard...</div></div>;
+  const [stats, setStats] = useState({
+    totalPatients: 2847,
+    dailyRevenue: 4589,
+    lowStock: 12,
+    activePrescriptions: 156
+  });
 
   return (
-    <div className="flex flex-col">
-      <Header />
-      <main className="flex-1 p-6 md:p-8">
-        <div className="mb-6">
-          <h2 className="text-3xl font-bold text-gray-800">Dashboard Overview</h2>
-          <p className="text-gray-500">Monitor your medical store operations and key metrics</p>
-        </div>
+    <div className="flex min-h-screen bg-[#F8FAFC] font-sans">
+      <Sidebar />
+      
+      <main className="flex-1 flex flex-col">
+        <Header />
         
-        {error && <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">{error}</div>}
+        <div className="p-8">
+          {/* Dashboard Header & Quick Actions */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+              <p className="text-slate-500">Welcome back! Here's your medical store overview.</p>
+            </div>
 
-        {/* Stat Cards Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-            <DashboardCard
-              title="Total Medicines"
-              value={stats?.totalMedicines}
-              subtitle="+12% from last month"
-              icon={<FiBox />}
-              trend={{ icon: <FiArrowUp className="text-green-500" /> }}
-              colorClass="bg-white"
-            />
-            <DashboardCard
-              title="Low Stock Alert"
-              value={stats?.lowStockCount}
-              subtitle="Items need restock"
-              icon={<FiAlertTriangle />}
-              colorClass="bg-orange-100"
-            />
-            <DashboardCard
-              title="Daily Revenue"
-              value={`₹${stats?.dailyRevenue.toLocaleString()}`}
-              subtitle="+8.2% from yesterday"
-              icon={<FiDollarSign />}
-              trend={{ icon: <FiArrowUp className="text-green-500" /> }}
-              colorClass="bg-green-100"
-            />
-            <DashboardCard
-              title="Patients Served"
-              value={stats?.patientsServed}
-              subtitle="Today's count"
-              icon={<FiUsers />}
-              colorClass="bg-purple-100"
-            />
-             
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <QuickActions />
-        </div>
-
-        {/* Charts and Alerts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          <div className="lg:col-span-3">
-            <WeeklyRevenueChart />
+            <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-2">
+              <button className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl font-bold text-sm hover:bg-emerald-100 transition-all">
+                <span className="bg-emerald-200 rounded-lg px-1 text-[10px]">⚡</span> Quick
+              </button>
+              <div className="w-px h-6 bg-slate-100 mx-1" />
+              <button className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-semibold transition-colors">
+                <Plus size={18} /> Add Patient
+              </button>
+              <button className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-semibold transition-colors">
+                <Pill size={18} /> New Medicine
+              </button>
+              <button className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-semibold transition-colors">
+                <FileText size={18} /> Create Bill
+              </button>
+            </div>
           </div>
-          <div className="lg:col-span-2 space-y-8">
-             <CriticalStockAlerts />
+
+          {/* Top Stat Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <StatCard 
+              title="Total Patients" 
+              value={stats.totalPatients.toLocaleString()} 
+              trend="+12.5%" 
+              icon={<Users size={20} />}
+              color="emerald"
+            />
+            <StatCard 
+              title="Daily Revenue" 
+              value={`$${stats.dailyRevenue.toLocaleString()}`} 
+              trend="+8.2%" 
+              icon={<DollarSign size={20} />}
+              color="emerald"
+            />
+            <StatCard 
+              title="Total Products" 
+              value="1,234" 
+              trend="-2.4%" 
+              subtitle="low stock items"
+              icon={<Package size={20} />}
+              color="orange"
+            />
+            <StatCard 
+              title="Active Prescriptions" 
+              value={stats.activePrescriptions} 
+              trend="+5.8%" 
+              icon={<Activity size={20} />}
+              color="emerald"
+            />
+          </div>
+
+          {/* Bottom Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Real Chart Component replacing the Mock Area */}
+            <div className="lg:col-span-2">
+               <WeeklyRevenueChart />
+            </div>
+
+            {/* Critical Alerts Card */}
+            <div className="lg:col-span-1">
+              <CriticalStockAlerts />
+            </div>
           </div>
         </div>
       </main>
@@ -112,4 +97,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;
