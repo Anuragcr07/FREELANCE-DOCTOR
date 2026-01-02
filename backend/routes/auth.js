@@ -38,7 +38,7 @@ router.post('/signup', async (req, res) => {
       },
     });
 
-    const frontendUrl ="https://freelance-doctor-7.onrender.com";
+    const frontendUrl ="http://localhost:5173";
     const url = `${frontendUrl}/verify-email/${token}`;
 
     await transporter.sendMail({

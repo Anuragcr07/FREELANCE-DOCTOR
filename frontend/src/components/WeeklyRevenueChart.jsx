@@ -18,7 +18,7 @@ const WeeklyRevenueChart = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch('https://freelance-doctor-5.onrender.com/api/stats/revenue');
+        const res = await fetch('http://localhost:5000/api/stats/revenue');
         if (!res.ok) throw new Error('Failed to fetch revenue data.');
         
         const data = await res.json();
