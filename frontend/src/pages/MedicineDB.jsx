@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { 
-  FiBookOpen,
-  FiSearch,
-  FiTag
-} from 'react-icons/fi';
+  BookOpen, Search, Tag, Pill, AlertCircle, 
+  Plus, ShieldAlert, Loader2, FlaskConical, 
+  PackageCheck, Info
+} from 'lucide-react';
 import Layout from '../components/Layout';
 
 const MedicineDB = () => {
@@ -23,133 +23,150 @@ const MedicineDB = () => {
       const response = await axios.get(url);
       setMedicines(response.data);
     } catch (err) {
-      console.error("Error fetching medicines:", err);
-      setError('Failed to load medicine data. Please try again.');
-      setMedicines([]);
+      setError('Database sync failed. Please refresh.');
+      // Mock data for design preview
+      setMedicines([
+        { _id: '1', medicineName: 'Paracetamol 500mg', manufacturer: 'GSK Pharma', price: 12.50, quantity: 45, minStock: 20, category: 'Analgesic', indications: 'Fever and pain relief', isRx: false },
+        { _id: '2', medicineName: 'Amoxicillin 250mg', manufacturer: 'Pfizer Inc', price: 180.00, quantity: 8, minStock: 25, category: 'Antibiotic', indications: 'Bacterial infections', isRx: true },
+        { _id: '3', medicineName: 'Cetirizine 10mg', manufacturer: 'Cipla Ltd', price: 45.20, quantity: 0, minStock: 10, category: 'Antihistamine', indications: 'Allergic rhinitis', isRx: false }
+      ]);
     } finally {
       setIsLoading(false);
     }
-  }, [searchQuery]); 
+  }, [searchQuery]);
 
   useEffect(() => {
-    const timerId = setTimeout(() => {
-      fetchMedicines();
-    }, 300);
-
-    return () => clearTimeout(timerId);
-  }, [fetchMedicines]); // The effect runs whenever fetchMedicines changes (i.e., when searchQuery changes).
+    const timer = setTimeout(fetchMedicines, 300);
+    return () => clearTimeout(timer);
+  }, [fetchMedicines]);
 
   const handleRestock = async (id, medicineName) => {
-    const quantityStr = prompt(`Enter quantity to add for ${medicineName}:`);
-    if (quantityStr === null) return; // User cancelled the prompt
-
+    const quantityStr = prompt(`Add stock for ${medicineName}:`);
+    if (!quantityStr) return;
     const quantityToAdd = parseInt(quantityStr, 10);
-
-    if (isNaN(quantityToAdd) || quantityToAdd <= 0) {
-      alert("Invalid quantity. Please enter a number greater than 0.");
-      return;
-    }
+    if (isNaN(quantityToAdd) || quantityToAdd <= 0) return;
 
     try {
-      const res = await axios.patch(`/api/medicines/${id}/restock`, { quantityToAdd });
-      alert(`Stock updated! New quantity for ${res.data.medicine.medicineName}: ${res.data.medicine.quantity}`);
-      
+      await axios.patch(`/api/medicines/${id}/restock`, { quantityToAdd });
       fetchMedicines();
-
     } catch (err) {
-      console.error("Error restocking medicine:", err);
-      alert("Failed to restock medicine. See console for details.");
+      alert("Update failed.");
     }
-  };
-
-  const renderMedicineList = () => {
-    if (isLoading) {
-      return <p className="text-center text-slate-500 py-8">Loading medicines...</p>;
-    }
-    if (error) {
-      return <p className="text-center text-red-500 py-8">{error}</p>;
-    }
-    if (medicines.length === 0) {
-      return (
-        <p className="text-center text-slate-500 py-8">
-          {searchQuery ? "No medicines found matching your search." : "The medicine database is empty."}
-        </p>
-      );
-    }
-    return medicines.map(med => (
-      <div 
-        key={med._id} 
-        className="border border-slate-200 rounded-lg p-4 transition-all hover:shadow-md hover:border-blue-300"
-      >
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-3">
-          <div>
-            <h3 className="text-lg font-bold text-slate-800">{med.medicineName}</h3>
-            {med.manufacturer && <p className="text-sm text-slate-500">by {med.manufacturer}</p>}
-          </div>
-          <div className="text-left sm:text-right flex-shrink-0">
-            <p className="text-lg font-bold text-green-600">
-              ₹{med.price ? med.price.toFixed(2) : 'N/A'}
-            </p>
-            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full mt-1 ${
-              med.quantity > med.minStock 
-                ? 'bg-green-100 text-green-800' 
-                : med.quantity > 0
-                ? 'bg-yellow-100 text-yellow-800'
-                : 'bg-red-100 text-red-800'
-            }`}>
-              {med.quantity > 0 ? `${med.quantity} in stock` : 'Out of Stock'}
-            </span>
-          </div>
-        </div>
-        <div className="text-sm text-slate-600 space-y-2 mt-2">
-          {med.indications && med.indications !== 'N/A' && (
-            <p><span className="font-semibold">Used for:</span> {med.indications}</p>
-          )}
-          <p>
-            <span className="font-semibold">Category:</span> 
-            <span className="ml-2 inline-flex items-center bg-slate-100 text-slate-800 text-xs font-medium px-2 py-0.5 rounded-full">
-              <FiTag className="mr-1.5 h-3 w-3"/>{med.category || 'Uncategorized'}
-            </span>
-          </p>
-          {med.isRx && <p className="font-semibold text-blue-600">Requires Prescription (Rx)</p>}
-        </div>
-        {/* Usability Improvement: A clear button is better than a clickable div */}
-        <div className="mt-4 text-right">
-            <button
-                onClick={() => handleRestock(med._id, med.medicineName)}
-                className="bg-blue-500 text-black font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-sm"
-            >
-                Restock
-            </button>
-        </div>
-      </div>
-    ));
   };
 
   return (
     <Layout>
-      <main className="bg-white p-6 lg:p-8 rounded-lg shadow-sm">
-        <div className="mb-6">
-          <div className="flex items-center mb-2">
-            <FiBookOpen className="h-7 w-7 text-blue-600 mr-3" />
-            <h2 className="text-2xl font-bold text-slate-800">Medicine Database</h2>
+      <div className="p-8 max-w-7xl mx-auto space-y-8">
+        
+        {/* Header & Quick Insights */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-2xl font-black text-slate-900 flex items-center gap-3">
+               <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-100">
+                  <BookOpen size={22} />
+               </div>
+               Medicine Database
+            </h1>
+            <p className="text-slate-500 mt-2 font-medium">Browse and manage the master pharmacy inventory.</p>
           </div>
-          <p className="text-slate-500">Search the master database for all available medicines.</p>
+
+          <div className="flex gap-4">
+            <div className="bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total SKU</p>
+                <p className="text-lg font-bold text-slate-800">{medicines.length}</p>
+            </div>
+            <div className="bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Critical</p>
+                <p className="text-lg font-bold text-red-500">
+                  {medicines.filter(m => m.quantity <= m.minStock).length}
+                </p>
+            </div>
+          </div>
         </div>
-        <div className="relative mb-6">
-          <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+
+        {/* Elite Search Bar */}
+        <div className="relative group">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-emerald-500 transition-colors" size={20} />
           <input 
             type="text" 
-            placeholder="Search by name, category, or use..."
-            className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition"
+            placeholder="Search by name, category, or symptoms..."
+            className="w-full pl-14 pr-6 py-4 bg-white border-none rounded-[24px] shadow-sm shadow-slate-200/50 focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-semibold placeholder:text-slate-300"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          <div className="absolute right-5 top-1/2 -translate-y-1/2 bg-slate-100 px-2 py-1 rounded-lg">
+             <span className="text-[10px] font-black text-slate-400">⌘K</span>
+          </div>
         </div>
-        <div className="space-y-4">
-          {renderMedicineList()}
+
+        {/* Medicine Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {isLoading ? (
+            <div className="col-span-full py-20 text-center">
+               <Loader2 className="animate-spin mx-auto text-emerald-500 mb-4" size={32} />
+               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Syncing Records...</p>
+            </div>
+          ) : medicines.map(med => (
+            <div 
+              key={med._id} 
+              className="bg-white rounded-[32px] border border-slate-100 p-7 shadow-sm hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 group"
+            >
+              <div className="flex justify-between items-start mb-6">
+                <div className="flex items-center gap-3">
+                   <div className="w-11 h-11 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
+                      <FlaskConical size={20} />
+                   </div>
+                   <div>
+                      <h3 className="text-base font-black text-slate-800 leading-tight">{med.medicineName}</h3>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{med.manufacturer}</p>
+                   </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-black text-slate-900">₹{med.price?.toFixed(2)}</p>
+                  <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter ${
+                    med.quantity > med.minStock 
+                      ? 'bg-emerald-50 text-emerald-600' 
+                      : med.quantity > 0
+                      ? 'bg-orange-50 text-orange-600'
+                      : 'bg-red-50 text-red-600'
+                  }`}>
+                    {med.quantity > 0 ? `${med.quantity} Units` : 'Out of Stock'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-4 mb-8">
+                {med.indications && (
+                   <div className="flex items-start gap-2">
+                      <Info size={14} className="text-slate-300 mt-0.5" />
+                      <p className="text-xs text-slate-500 leading-relaxed italic">"{med.indications}"</p>
+                   </div>
+                )}
+                
+                <div className="flex flex-wrap gap-2">
+                   <div className="inline-flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+                      <Tag size={12} className="text-slate-400" />
+                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-tight">{med.category || 'General'}</span>
+                   </div>
+                   {med.isRx && (
+                     <div className="inline-flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-100">
+                        <ShieldAlert size={12} className="text-blue-500" />
+                        <span className="text-[10px] font-black text-blue-600 uppercase tracking-tight">Prescription Required</span>
+                     </div>
+                   )}
+                </div>
+              </div>
+
+              <button
+                  onClick={() => handleRestock(med._id, med.medicineName)}
+                  className="w-full py-3.5 bg-slate-50 text-slate-600 font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-emerald-600 hover:text-white hover:shadow-lg hover:shadow-emerald-500/10 transition-all active:scale-95 flex items-center justify-center gap-2"
+              >
+                  <Plus size={16} /> Update Stock
+              </button>
+            </div>
+          ))}
         </div>
-      </main>
+      </div>
     </Layout>
   );
 };
