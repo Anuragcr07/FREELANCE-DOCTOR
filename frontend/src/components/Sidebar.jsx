@@ -13,6 +13,7 @@ const Sidebar = () => {
     { to: "/billing", icon: <DollarSign size={20} />, label: "Billing" },
     { to: "/revenue", icon: <BarChart2 size={20} />, label: "Analytics" },
     { to: "/symptom-analysis", icon: <HelpCircle size={20} />, label: "Symptom Analysis" },
+    { to: "/medicine-db", icon: <Pill size={20} />, label: "Medicine DB" },
   ];
 
   return (

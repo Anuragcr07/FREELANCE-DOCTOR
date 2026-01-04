@@ -3,146 +3,224 @@ import axios from 'axios';
 import { 
   Package, AlertCircle, DollarSign, Search, 
   Filter, Plus, MoreHorizontal, Pill, 
-  ChevronRight, Download, Loader2 
+  Download, Loader2, X, Save
 } from 'lucide-react';
 import Layout from '../components/Layout';
 import StatCard from '../components/StatCard';
 
 const Inventory = () => {
   const [inventory, setInventory] = useState([]);
-  const [stats, setStats] = useState({ total: 1234, lowStock: 12, totalValue: 45230 });
+  const [stats, setStats] = useState({ total: 0, lowStock: 0, totalValue: 0 });
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-
-  // Toggle for the "Add Medicine" Section
   const [showAddForm, setShowAddForm] = useState(false);
 
+  // Form State
+  const [formData, setFormData] = useState({
+    medicineName: '',
+    category: '',
+    quantity: '',
+    price: '',
+    expiryDate: '',
+    manufacturer: '',
+    minStock: '10'
+  });
+
+  const API_URL = '/api/inventory';
+
   useEffect(() => {
-    const fetchInventory = async () => {
-      setIsLoading(true);
-      try {
-        const res = await axios.get('/api/inventory');
-        setInventory(res.data);
-      } catch (err) {
-        // Mock data matching your reference image for design preview
-        setInventory([
-          { _id: '1', name: 'Paracetamol 500mg', category: 'Pain Relief', quantity: 12, minStock: 50, price: 5.99, expiry: 'Mar 2027', supplier: 'PharmaCorp' },
-          { _id: '2', name: 'Amoxicillin 250mg', category: 'Antibiotics', quantity: 85, minStock: 30, price: 12.50, expiry: 'Jun 2026', supplier: 'MediSupply' },
-          { _id: '3', name: 'Ibuprofen 400mg', category: 'Pain Relief', quantity: 5, minStock: 25, price: 8.99, expiry: 'Dec 2026', supplier: 'PharmaCorp' },
-          { _id: '4', name: 'Vitamin C 1000mg', category: 'Supplements', quantity: 150, minStock: 40, price: 15.00, expiry: 'Sep 2027', supplier: 'VitaHealth' },
-        ]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchInventory();
   }, []);
 
+  const fetchInventory = async () => {
+    setIsLoading(true);
+    try {
+      const res = await axios.get(API_URL);
+      setInventory(res.data);
+      calculateStats(res.data);
+    } catch (err) {
+      console.error("Error fetching inventory", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const calculateStats = (data) => {
+    const total = data.length;
+    const lowStock = data.filter(item => item.quantity <= (item.minStock || 10)).length;
+    const totalValue = data.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    setStats({ total, lowStock, totalValue });
+  };
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Note: If you implemented multi-tenancy, add the Authorization header here
+      const res = await axios.post(`${API_URL}/add`, formData);
+      
+      // Update UI
+      const updatedInventory = [res.data, ...inventory];
+      setInventory(updatedInventory);
+      calculateStats(updatedInventory);
+      
+      // Reset Form & Close
+      setFormData({ medicineName: '', category: '', quantity: '', price: '', expiryDate: '', manufacturer: '', minStock: '10' });
+      setShowAddForm(false);
+      alert("Medicine added successfully!");
+    } catch (err) {
+      alert("Error adding medicine. Check backend connection.");
+    }
+  };
+
   return (
     <Layout>
-      <div className="p-8 max-w-7xl mx-auto">
+      <div className="p-8 max-w-7xl mx-auto space-y-8">
         
         {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Inventory</h1>
-            <p className="text-slate-500">Manage your medicine stock and supplies</p>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Inventory</h1>
+            <p className="text-slate-500 font-medium">Real-time stock monitoring and management.</p>
           </div>
           <div className="flex gap-3">
-             <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all">
+             <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all">
                 <Download size={18} /> Export
              </button>
              <button 
                 onClick={() => setShowAddForm(!showAddForm)}
-                className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-100 hover:bg-emerald-700 transition-all"
+                className={`flex items-center gap-2 px-6 py-2.5 font-bold rounded-xl shadow-lg transition-all active:scale-95 ${
+                    showAddForm ? 'bg-slate-800 text-white' : 'bg-emerald-600 text-white shadow-emerald-500/20 hover:bg-emerald-700'
+                }`}
              >
-                <Plus size={20} /> Add Medicine
+                {showAddForm ? <><X size={20} /> Close</> : <><Plus size={20} /> Add Medicine</>}
              </button>
           </div>
         </div>
 
-        {/* Top Summary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <StatCard title="Total Products" value={stats.total.toLocaleString()} icon={<Package size={20}/>} color="emerald" trend="+2.4%"/>
-          <StatCard title="Low Stock Items" value={stats.lowStock} icon={<AlertCircle size={20}/>} color="orange" trend="Critical"/>
-          <StatCard title="Total Value" value={`$${stats.totalValue.toLocaleString()}`} icon={<DollarSign size={20}/>} color="emerald" trend="+12%"/>
+        {/* TOP STATS */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatCard title="Total Products" value={stats.total} icon={<Package size={20}/>} color="emerald" trend="Live" />
+          <StatCard title="Low Stock Items" value={stats.lowStock} icon={<AlertCircle size={20}/>} color="orange" trend="Critical" />
+          <StatCard title="Inventory Value" value={`₹${stats.totalValue.toLocaleString()}`} icon={<DollarSign size={20}/>} color="emerald" trend="+4.2%" />
         </div>
 
-        {/* Search & Filter Bar */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                <input
-                    type="text"
-                    placeholder="Search medicines by name or category..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-100 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 text-sm transition-all"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
+        {/* ADD MEDICINE FORM (SLIDE DOWN PANEL) */}
+        {showAddForm && (
+          <div className="bg-white p-8 rounded-[32px] border-2 border-emerald-100 shadow-xl animate-in slide-in-from-top duration-500">
+            <div className="flex items-center gap-3 mb-8">
+                <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+                    <Plus size={24} />
+                </div>
+                <h2 className="text-xl font-bold text-slate-800">Register New Inventory Item</h2>
             </div>
-            <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
-                <Filter size={18} /> Filters
-            </button>
+            
+            <form onSubmit={handleFormSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="md:col-span-2">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Medicine Name</label>
+                <input name="medicineName" value={formData.medicineName} onChange={handleInputChange} required
+                       className="w-full px-5 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" placeholder="e.g. Paracetamol 500mg" />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Category</label>
+                <input name="category" value={formData.category} onChange={handleInputChange}
+                       className="w-full px-5 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" placeholder="e.g. Analgesic" />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Price (₹)</label>
+                <input name="price" type="number" value={formData.price} onChange={handleInputChange} required
+                       className="w-full px-5 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" placeholder="0.00" />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Current Stock</label>
+                <input name="quantity" type="number" value={formData.quantity} onChange={handleInputChange} required
+                       className="w-full px-5 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" placeholder="100" />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Min. Stock Alert</label>
+                <input name="minStock" type="number" value={formData.minStock} onChange={handleInputChange}
+                       className="w-full px-5 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Expiry Date</label>
+                <input name="expiryDate" type="date" value={formData.expiryDate} onChange={handleInputChange}
+                       className="w-full px-5 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" />
+              </div>
+              <div className="flex items-end">
+                <button type="submit" className="w-full py-3.5 bg-emerald-600 text-white font-black rounded-2xl hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all active:scale-95">
+                    <Save size={18} /> Save to Database
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* SEARCH BAR */}
+        <div className="relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" size={20} />
+            <input
+                type="text"
+                placeholder="Filter by medicine name, manufacturer, or category..."
+                className="w-full pl-12 pr-4 py-4 bg-white border-none rounded-[24px] shadow-sm shadow-slate-200/50 focus:ring-4 focus:ring-emerald-500/5 text-sm font-medium transition-all"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+            />
         </div>
 
-        {/* Main Inventory Table */}
-        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+        {/* INVENTORY TABLE */}
+        <div className="bg-white rounded-[32px] border border-slate-100 shadow-elite overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full text-left">
                     <thead className="border-b border-slate-50">
-                        <tr className="text-slate-400 text-[11px] uppercase tracking-widest font-bold">
-                            <th className="px-6 py-5">Medicine</th>
-                            <th className="px-6 py-5">Category</th>
-                            <th className="px-6 py-5">Stock Level</th>
-                            <th className="px-6 py-5">Price</th>
-                            <th className="px-6 py-5">Expiry</th>
-                            <th className="px-6 py-5">Supplier</th>
-                            <th className="px-6 py-5"></th>
+                        <tr className="text-slate-400 text-[10px] uppercase tracking-[0.2em] font-black">
+                            <th className="px-8 py-6">Medicine</th>
+                            <th className="px-8 py-6">Category</th>
+                            <th className="px-8 py-6">Stock Status</th>
+                            <th className="px-8 py-6">Unit Price</th>
+                            <th className="px-8 py-6">Expiry</th>
+                            <th className="px-8 py-6 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                         {isLoading ? (
-                            <tr><td colSpan="7" className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-emerald-500" /></td></tr>
-                        ) : inventory.map((item) => (
+                            <tr><td colSpan="6" className="py-24 text-center"><Loader2 className="animate-spin mx-auto text-emerald-500" size={32} /></td></tr>
+                        ) : inventory.filter(m => m.medicineName?.toLowerCase().includes(searchQuery.toLowerCase())).map((item) => (
                             <tr key={item._id} className="hover:bg-slate-50/50 transition-colors group">
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                            <Pill size={18} />
+                                <td className="px-8 py-5">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                            <Pill size={20} />
                                         </div>
-                                        <span className="font-bold text-slate-900 text-sm">{item.name}</span>
+                                        <div>
+                                            <p className="font-bold text-slate-900 text-sm">{item.medicineName}</p>
+                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{item.manufacturer || 'General'}</p>
+                                        </div>
                                     </div>
                                 </td>
-                                <td className="px-6 py-4">
-                                    <span className="text-slate-500 text-sm font-medium">{item.category}</span>
-                                </td>
-                                <td className="px-6 py-4 min-w-[180px]">
-                                    <div className="flex flex-col gap-1.5">
-                                        <div className="flex justify-between text-[11px] font-bold">
-                                            <span className={item.quantity <= item.minStock ? 'text-red-500' : 'text-slate-700'}>
-                                                {item.quantity} units
+                                <td className="px-8 py-5 text-sm font-bold text-slate-500">{item.category}</td>
+                                <td className="px-8 py-5 min-w-[200px]">
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex justify-between items-end">
+                                            <span className={`text-[11px] font-black uppercase ${item.quantity <= (item.minStock || 10) ? 'text-red-500' : 'text-emerald-600'}`}>
+                                                {item.quantity} Units
                                             </span>
-                                            <span className="text-slate-300">/ {item.minStock}</span>
+                                            <span className="text-[10px] text-slate-300 font-bold">Limit: {item.minStock}</span>
                                         </div>
                                         <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                                             <div 
-                                                className={`h-full rounded-full transition-all duration-1000 ${item.quantity <= item.minStock ? 'bg-red-500' : 'bg-emerald-500'}`}
-                                                style={{ width: `${Math.min((item.quantity / item.minStock) * 100, 100)}%` }}
+                                                className={`h-full rounded-full transition-all duration-1000 ${item.quantity <= (item.minStock || 10) ? 'bg-red-500' : 'bg-emerald-500'}`}
+                                                style={{ width: `${Math.min((item.quantity / 100) * 100, 100)}%` }}
                                             />
                                         </div>
                                     </div>
                                 </td>
-                                <td className="px-6 py-4 font-bold text-slate-900 text-sm">
-                                    ${item.price.toFixed(2)}
-                                </td>
-                                <td className="px-6 py-4 text-slate-500 text-sm font-medium">
-                                    {item.expiry}
-                                </td>
-                                <td className="px-6 py-4 text-slate-400 text-sm font-medium">
-                                    {item.supplier}
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                    <button className="p-2 text-slate-300 hover:text-slate-600 transition-colors">
+                                <td className="px-8 py-5 font-black text-slate-900 text-sm">₹{item.price?.toFixed(2)}</td>
+                                <td className="px-8 py-5 text-slate-400 text-xs font-bold">{item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</td>
+                                <td className="px-8 py-5 text-right">
+                                    <button className="p-2 text-slate-200 hover:text-slate-600 transition-colors">
                                         <MoreHorizontal size={20} />
                                     </button>
                                 </td>
