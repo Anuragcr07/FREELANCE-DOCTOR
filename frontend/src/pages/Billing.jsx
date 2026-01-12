@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { 
   Search, User, Trash2, PlusCircle, MinusCircle, 
   Save, CheckCircle2, ShoppingCart, Pill, Phone, 
-  Receipt, Loader2, AlertCircle, ArrowRight, Printer
+  Receipt, Loader2, AlertCircle, ArrowRight, ShieldCheck
 } from 'lucide-react';
 import Layout from '../components/Layout';
 import generateInvoicePDF from '../components/generateInvoicePDF';
-import axios from 'axios';
+import API from '../services/api'; 
 
 const Billing = () => {
   const [medicines, setMedicines] = useState([]);
@@ -17,8 +17,6 @@ const Billing = () => {
   const [patientName, setPatientName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
 
-  const API_BASE = 'http://localhost:5000/api'; 
-
   useEffect(() => {
     fetchMedicines();
   }, []);
@@ -26,16 +24,18 @@ const Billing = () => {
   const fetchMedicines = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE}/inventory`);
+      const response = await API.get('/inventory');
       setMedicines(response.data.map(med => ({
         id: med._id,
         name: med.medicineName,
         stock: med.quantity,
         price: med.price,
-        category: med.category || 'General'
+        category: med.category || 'General Pharma'
       })));
+      setError(null);
     } catch (err) {
-      setError("System connection interrupted.");
+      console.error("Fetch error:", err);
+      setError("Session expired or server connection lost.");
     } finally {
       setLoading(false);
     }
@@ -65,230 +65,198 @@ const Billing = () => {
   };
 
   const totalAmount = billItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const tax = totalAmount * 0.05; // Sample 5% Tax
+  const tax = totalAmount * 0.05; 
   const finalTotal = (totalAmount + tax).toFixed(2);
 
+  // Core Logic: Communicates with Backend
   const processTransaction = async () => {
-    if (billItems.length === 0) return false;
+    if (billItems.length === 0) {
+        alert("Please add items to the bill first.");
+        return false;
+    }
     try {
-      await axios.patch(`${API_BASE}/inventory/update-stock`, {
+      // 1. Update Stock in Inventory
+      await API.patch('/inventory/update-stock', {
         billItems: billItems.map(item => ({ id: item.id, quantity: item.quantity }))
       });
-      await axios.post(`${API_BASE}/transactions`, {
-        items: billItems.map(item => ({ medicineId: item.id, medicineName: item.name, quantity: item.quantity, price: item.price })),
+
+      // 2. Record Transaction
+      await API.post('/transactions', {
+        items: billItems.map(item => ({ 
+            medicineId: item.id, 
+            medicineName: item.name, 
+            quantity: item.quantity, 
+            price: item.price 
+        })),
         totalAmount: parseFloat(finalTotal),
-        patientName,
-        phoneNumber,
+        patientName: patientName || 'Walk-in Customer',
+        phoneNumber: phoneNumber || 'N/A',
       });
+
       return true;
     } catch (err) {
-      alert("Error: " + err.message);
+      console.error("Transaction failed", err);
+      alert("Terminal Error: " + (err.response?.data?.message || "Check your network."));
       return false;
     }
   };
 
+  // Action: Finalize with PDF
   const handleFinish = async () => {
     const success = await processTransaction();
     if (success) {
       generateInvoicePDF({ billItems, total: finalTotal, patientName, phoneNumber });
-      setBillItems([]);
-      setPatientName('');
-      setPhoneNumber('');
-      fetchMedicines(); // Refresh stock UI
+      alert("Order Processed & Invoice Generated!");
+      resetUI();
     }
   };
 
-  if (loading) return <div className="h-screen flex flex-col items-center justify-center bg-[#F8FAFC]">
-    <Loader2 className="animate-spin text-emerald-500 mb-4" size={48} />
-    <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Initializing Terminal</p>
-  </div>;
+  // Action: Save to DB only (Draft Mode)
+  const handleSaveOnly = async () => {
+    const success = await processTransaction();
+    if (success) {
+      alert("Stock and Revenue records updated successfully!");
+      resetUI();
+    }
+  };
+
+  const resetUI = () => {
+    setBillItems([]);
+    setPatientName('');
+    setPhoneNumber('');
+    fetchMedicines(); // Refresh stock status in the list
+  };
+
+  if (loading) return (
+    <div className="h-screen flex flex-col items-center justify-center bg-[#F8FAFC]">
+      <Loader2 className="animate-spin text-emerald-500 mb-4" size={48} />
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Syncing Secure Terminal</p>
+    </div>
+  );
 
   return (
     <Layout>
-      <div className="p-8 max-w-[1500px] mx-auto">
-        
+      <div className="p-8 max-w-[1600px] mx-auto">
         <div className="flex flex-col xl:flex-row gap-10 items-start">
           
-          {/* LEFT: Inventory Selection */}
+          {/* LEFT: Selection Grid */}
           <div className="flex-1 w-full space-y-8">
             <header className="flex justify-between items-end">
               <div>
-                <h1 className="text-3xl font-black text-slate-900 tracking-tight">Checkout</h1>
-                <p className="text-slate-400 font-medium">Build orders and manage patient billing.</p>
-              </div>
-              <div className="hidden md:block text-right">
-                <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Station ID</p>
-                <p className="text-sm font-bold text-slate-600">ST-09942</p>
+                <h1 className="text-3xl font-black text-slate-900 tracking-tight">Billing Terminal</h1>
+                <p className="text-slate-400 font-medium">Add medicines from your inventory.</p>
               </div>
             </header>
 
-            {/* Elite Search Bar */}
             <div className="relative group">
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-emerald-500 transition-colors" size={22} />
               <input
                 type="text"
-                placeholder="Find medicine by name, category, or barcode..."
-                className="w-full pl-14 pr-6 py-5 bg-white border-none rounded-[28px] shadow-sm shadow-slate-200/50 focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-semibold placeholder:text-slate-300"
+                placeholder="Search inventory..."
+                className="w-full pl-14 pr-6 py-5 bg-white border-none rounded-[28px] shadow-sm focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-semibold"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <div className="absolute right-5 top-1/2 -translate-y-1/2 flex gap-1 items-center bg-slate-100 px-2 py-1 rounded-lg">
-                <span className="text-[10px] font-black text-slate-400">⌘K</span>
-              </div>
             </div>
 
-            {/* Medicine Tiles Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
               {medicines.filter(m => m.name.toLowerCase().includes(searchQuery.toLowerCase())).map((medicine) => (
                 <div 
                   key={medicine.id}
                   onClick={() => handleAddMedicine(medicine)}
                   className={`p-6 rounded-[32px] border transition-all cursor-pointer group relative overflow-hidden ${
-                    medicine.stock <= 0 
-                    ? 'bg-slate-50 border-transparent opacity-50 grayscale cursor-not-allowed' 
-                    : 'bg-white border-slate-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/5 active:scale-95'
+                    medicine.stock <= 0 ? 'bg-slate-50 opacity-40 grayscale cursor-not-allowed' : 'bg-white border-slate-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/5 active:scale-95'
                   }`}
                 >
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
-                      <Pill size={24} />
+                  <div className="flex justify-between mb-4">
+                    <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                      <Pill size={20} />
                     </div>
-                    <div className="text-right">
-                      <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">In Stock</p>
-                      <span className={`text-sm font-black ${medicine.stock > 10 ? 'text-emerald-500' : 'text-orange-500'}`}>
-                        {medicine.stock}
-                      </span>
-                    </div>
+                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${medicine.stock > 10 ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-500'}`}>
+                        {medicine.stock} Left
+                    </span>
                   </div>
-                  
-                  <h3 className="font-bold text-slate-800 text-lg leading-tight mb-1 group-hover:text-emerald-700 transition-colors">{medicine.name}</h3>
+                  <h3 className="font-bold text-slate-800 text-lg leading-tight mb-1">{medicine.name}</h3>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-6">{medicine.category}</p>
-                  
-                  <div className="flex items-center justify-between border-t border-slate-50 pt-4">
+                  <div className="flex items-center justify-between border-t border-slate-50 pt-4 mt-2">
                     <span className="text-xl font-black text-slate-900">₹{medicine.price.toFixed(2)}</span>
-                    <div className="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-300 group-hover:border-emerald-500 group-hover:text-emerald-500 transition-all">
-                        <PlusCircle size={20} />
-                    </div>
+                    <PlusCircle size={20} className="text-slate-200 group-hover:text-emerald-500 transition-colors" />
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* RIGHT: High-End Checkout Terminal */}
+          {/* RIGHT: Receipt Panel */}
           <div className="w-full lg:w-[460px] lg:sticky lg:top-8 space-y-6">
-            
-            {/* Patient Header Section */}
             <div className="bg-white p-8 rounded-[36px] border border-slate-100 shadow-sm">
-              <div className="flex items-center gap-3 mb-8">
-                 <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-                    <User size={16} />
-                 </div>
-                 <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Patient Assignment</h3>
-              </div>
-              
-              <div className="space-y-5">
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-2 tracking-widest">Full Name</label>
-                    <input 
-                      type="text" 
-                      placeholder="e.g. Sarah Jenkins" 
-                      className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold focus:ring-4 focus:ring-emerald-500/5 transition-all outline-none"
-                      value={patientName}
-                      onChange={(e) => setPatientName(e.target.value)}
-                    />
-                </div>
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-2 tracking-widest">Phone Contact</label>
-                    <input 
-                      type="tel" 
-                      placeholder="+91 00000 00000" 
-                      className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold focus:ring-4 focus:ring-emerald-500/5 transition-all outline-none"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                    />
-                </div>
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] mb-6 flex items-center gap-2">
+                <User size={14} /> Assignment
+              </h3>
+              <div className="space-y-4">
+                <input type="text" placeholder="Patient Name" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold" value={patientName} onChange={(e) => setPatientName(e.target.value)} />
+                <input type="tel" placeholder="Contact Number" className="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
               </div>
             </div>
 
-            {/* The Live Receipt (The Hero) */}
-            <div className="bg-slate-900 text-white p-10 rounded-[40px] shadow-2xl relative overflow-hidden group">
-              {/* Animated Background Glow */}
-              <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/20 rounded-full blur-[80px] -mr-20 -mt-20 group-hover:bg-emerald-500/30 transition-all duration-700" />
+            <div className="bg-slate-900 text-white p-10 rounded-[40px] shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-[80px] -mr-20 -mt-20" />
               
-              <div className="flex items-center justify-between mb-10 relative z-10">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-emerald-400">
-                        <Receipt size={22} />
-                    </div>
-                    <h3 className="font-black text-xl tracking-tight">Summary</h3>
-                </div>
-                <span className="text-[10px] font-black bg-emerald-500 text-slate-900 px-3 py-1 rounded-full uppercase tracking-tighter">
-                  {billItems.length} Products
-                </span>
-              </div>
+              <h3 className="font-black text-xl mb-10 flex items-center gap-2 relative z-10">
+                <Receipt size={22} className="text-emerald-400" /> Order Summary
+              </h3>
 
-              {/* Items List */}
               <div className="space-y-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar relative z-10 mb-10">
                 {billItems.length === 0 ? (
-                  <div className="py-14 text-center opacity-20">
-                    <ShoppingCart size={48} className="mx-auto mb-4" />
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em]">Terminal Empty</p>
+                  <div className="py-20 text-center opacity-20 flex flex-col items-center">
+                    <ShoppingCart size={48} className="mb-4" />
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em]">Cart Empty</p>
                   </div>
                 ) : (
                   billItems.map(item => (
-                    <div key={item.id} className="flex justify-between items-center group/item animate-in fade-in slide-in-from-right-4">
+                    <div key={item.id} className="flex justify-between items-center animate-in fade-in slide-in-from-right-4">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold truncate pr-4 text-white group-hover/item:text-emerald-400 transition-colors">{item.name}</p>
-                        <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest">₹{item.price.toFixed(2)} / UNIT</p>
+                        <p className="text-sm font-bold truncate pr-4">{item.name}</p>
+                        <p className="text-[10px] text-white/30 font-bold tracking-widest uppercase">₹{item.price.toFixed(2)} x {item.quantity}</p>
                       </div>
                       <div className="flex items-center gap-4 bg-white/5 px-3 py-1.5 rounded-2xl border border-white/5">
-                        <button onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)} className="text-white/30 hover:text-white transition-colors"><MinusCircle size={18}/></button>
+                        <button onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)} className="text-white/30 hover:text-white"><MinusCircle size={18}/></button>
                         <span className="text-sm font-black w-4 text-center">{item.quantity}</span>
-                        <button onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)} className="text-white/30 hover:text-white transition-colors"><PlusCircle size={18}/></button>
+                        <button onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)} className="text-white/30 hover:text-white"><PlusCircle size={18}/></button>
                       </div>
                     </div>
                   ))
                 )}
               </div>
 
-              {/* Totals Section */}
-              <div className="border-t border-white/10 pt-8 relative z-10">
-                <div className="space-y-3 mb-8">
-                    <div className="flex justify-between text-[11px] font-bold text-white/40 uppercase tracking-widest">
-                        <span>Subtotal</span>
-                        <span className="text-white">₹{totalAmount.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-[11px] font-bold text-white/40 uppercase tracking-widest">
-                        <span>Service Fee (5%)</span>
-                        <span className="text-white">₹{tax.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between items-end pt-2">
-                        <span className="text-xs font-black text-emerald-400 uppercase tracking-[0.2em]">Total Amount</span>
-                        <span className="text-4xl font-black text-white">₹{finalTotal}</span>
-                    </div>
+              <div className="mt-10 pt-8 border-t border-white/10 relative z-10">
+                <div className="flex justify-between items-end mb-10">
+                  <span className="text-xs font-black text-white/40 uppercase tracking-[0.2em]">Total Payable</span>
+                  <span className="text-4xl font-black text-emerald-400">₹{finalTotal}</span>
                 </div>
 
                 <div className="grid gap-4">
                   <button 
                     onClick={handleFinish}
                     disabled={billItems.length === 0}
-                    className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black py-5 rounded-[24px] transition-all shadow-xl shadow-emerald-500/20 active:scale-95 disabled:opacity-10 disabled:grayscale flex items-center justify-center gap-3 group"
+                    className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black py-5 rounded-[24px] shadow-xl shadow-emerald-500/30 active:scale-95 disabled:opacity-10 flex items-center justify-center gap-3 transition-all"
                   >
-                    Generate Invoice & Finalize <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                    Generate & Sync <ArrowRight size={20} />
                   </button>
                   <div className="flex gap-3">
-                    <button onClick={processTransaction} className="flex-1 bg-white/5 hover:bg-white/10 text-white text-[11px] font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2">
-                       <Save size={16} /> Save
+                    <button onClick={handleSaveOnly} disabled={billItems.length === 0} className="flex-1 bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-widest py-4 rounded-2xl transition-all disabled:opacity-20">
+                       Save Record
                     </button>
-                    <button onClick={() => setBillItems([])} className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[11px] font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2">
-                       <Trash2 size={16} /> Clear
+                    <button onClick={() => setBillItems([])} className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px] font-black uppercase tracking-widest py-4 rounded-2xl transition-all">
+                       Clear All
                     </button>
                   </div>
                 </div>
               </div>
             </div>
-
+            <p className="text-center text-[10px] font-black text-slate-300 uppercase tracking-widest flex items-center justify-center gap-2">
+               <AlertCircle size={12} className="text-emerald-500" /> Secure Cloud Transmission
+            </p>
           </div>
         </div>
       </div>

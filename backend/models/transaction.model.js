@@ -5,7 +5,7 @@ const transactionSchema = new mongoose.Schema({
     {
       medicineId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Inventory', 
+        ref: 'Medicine', 
         required: true,
       },
       medicineName: {
