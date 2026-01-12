@@ -1,11 +1,12 @@
 import Transaction from '../models/transaction.model.js';
-// You will likely need other models here for the full dashboard.
-import Inventory from '../models/medicineModel.js'; 
-import Activity from '../models/activity.model.js';
-
+import Inventory from '../models/medicineModel.js';
+import mongoose from 'mongoose';
 
 export const getRevenueStats = async (req, res) => {
   try {
+    // Convert string ID to MongoDB ObjectId for Aggregation
+    const userId = new mongoose.Types.ObjectId(req.user.id);
+    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -13,86 +14,79 @@ export const getRevenueStats = async (req, res) => {
     startOfWeek.setDate(today.getDate() - today.getDay());
 
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-   
+
+    // 1. Calculate user-specific revenue totals
     const todayResult = await Transaction.aggregate([
-      { $match: { createdAt: { $gte: today } } },
+      { $match: { userId: userId, createdAt: { $gte: today } } },
       { $group: { _id: null, total: { $sum: '$totalAmount' } } },
     ]);
-    const todayRevenue = todayResult[0]?.total || 0;
-   
+    
     const weekResult = await Transaction.aggregate([
-        { $match: { createdAt: { $gte: startOfWeek } } },
-        { $group: { _id: null, total: { $sum: '$totalAmount' } } },
+      { $match: { userId: userId, createdAt: { $gte: startOfWeek } } },
+      { $group: { _id: null, total: { $sum: '$totalAmount' } } },
     ]);
-    const weekRevenue = weekResult[0]?.total || 0;
 
     const monthResult = await Transaction.aggregate([
-        { $match: { createdAt: { $gte: startOfMonth } } },
-        { $group: { _id: null, total: { $sum: '$totalAmount' } } },
+      { $match: { userId: userId, createdAt: { $gte: startOfMonth } } },
+      { $group: { _id: null, total: { $sum: '$totalAmount' } } },
     ]);
-    const monthRevenue = monthResult[0]?.total || 0;
-   
+
+    // 2. Daily Trends (Last 7 days) for this specific user
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
     const dailyTrends = await Transaction.aggregate([
-      { $match: { createdAt: { $gte: sevenDaysAgo } } },
+      { $match: { userId: userId, createdAt: { $gte: sevenDaysAgo } } },
       {
         $group: {
           _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
           dailyTotal: { $sum: '$totalAmount' },
         },
       },
-      { $sort: { _id: 1 } }, 
+      { $sort: { _id: 1 } },
     ]);
-    
-    const recentTransactions = await Transaction.find().sort({ createdAt: -1 }).limit(5);
+
+    // 3. Recent Transactions list
+    const recentTransactions = await Transaction.find({ userId: userId })
+      .sort({ createdAt: -1 })
+      .limit(5);
 
     res.status(200).json({
-      todayRevenue,
-      weekRevenue,
-      monthRevenue,
+      todayRevenue: todayResult[0]?.total || 0,
+      weekRevenue: weekResult[0]?.total || 0,
+      monthRevenue: monthResult[0]?.total || 0,
       dailyTrends,
       recentTransactions,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server Error fetching stats.', error: error.message });
+    res.status(500).json({ message: 'Error fetching isolated stats', error: error.message });
   }
 };
 
-// This is the dashboard function we created previously. It should also be in this file.
+// Isolated Dashboard Stats
 export const getDashboardStats = async (req, res) => {
   try {
+    const userId = new mongoose.Types.ObjectId(req.user.id);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const [
-      totalMedicines,
-      lowStockCount,
-      dailyRevenueResult,
-      patientsServed,
-      recentActivities
-    ] = await Promise.all([
-      Inventory.countDocuments(),
-      Inventory.countDocuments({ quantity: { $lte: 10 } }),
+    const [totalMedicines, lowStockCount, dailyRevenueResult, patientsServed] = await Promise.all([
+      Inventory.countDocuments({ userId: userId }),
+      Inventory.countDocuments({ userId: userId, quantity: { $lte: 10 } }),
       Transaction.aggregate([
-        { $match: { createdAt: { $gte: today } } },
+        { $match: { userId: userId, createdAt: { $gte: today } } },
         { $group: { _id: null, total: { $sum: '$totalAmount' } } }
       ]),
-      Transaction.distinct("patientName", { createdAt: { $gte: today } }), // To count unique patients served today
-      Activity.find().sort({ timestamp: -1 }).limit(5)
+      Transaction.distinct("patientName", { userId: userId, createdAt: { $gte: today } })
     ]);
-
-    const dailyRevenue = dailyRevenueResult[0]?.total || 0;
 
     res.status(200).json({
       totalMedicines,
       lowStockCount,
-      dailyRevenue,
-      patientsServed: patientsServed.length, // Get the count of unique patients
-      recentActivities
+      todayRevenue: dailyRevenueResult[0]?.total || 0,
+      patientsServed: patientsServed.length
     });
-
   } catch (error) {
-    res.status(500).json({ message: 'Server Error fetching dashboard stats.', error: error.message });
+    res.status(500).json({ message: 'Dashboard sync error' });
   }
 };
