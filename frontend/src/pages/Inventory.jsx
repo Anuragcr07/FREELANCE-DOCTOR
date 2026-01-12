@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { 
   Package, AlertCircle, DollarSign, Search, 
   Filter, Plus, MoreHorizontal, Pill, 
-  Download, Loader2, X, Save
+  Download, Loader2, X, Save, AlertTriangle
 } from 'lucide-react';
 import Layout from '../components/Layout';
 import StatCard from '../components/StatCard';
+import API from '../services/api'; // Ensure this file exists with the JWT interceptor
 
 const Inventory = () => {
   const [inventory, setInventory] = useState([]);
@@ -14,8 +14,9 @@ const Inventory = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Form State
+  // Form State matching your Backend Schema
   const [formData, setFormData] = useState({
     medicineName: '',
     category: '',
@@ -26,7 +27,7 @@ const Inventory = () => {
     minStock: '10'
   });
 
-  const API_URL = '/api/inventory';
+  const API_URL = '/inventory';
 
   useEffect(() => {
     fetchInventory();
@@ -34,12 +35,19 @@ const Inventory = () => {
 
   const fetchInventory = async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      const res = await axios.get(API_URL);
+      // Using 'API' ensures the Authorization Header is attached
+      const res = await API.get(API_URL);
       setInventory(res.data);
       calculateStats(res.data);
     } catch (err) {
       console.error("Error fetching inventory", err);
+      if (err.response?.status === 401) {
+        setError("Session expired. Please log in again.");
+      } else {
+        setError("Failed to sync inventory with server.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -59,22 +67,27 @@ const Inventory = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Note: If you implemented multi-tenancy, add the Authorization header here
-      const res = await axios.post(`${API_URL}/add`, formData);
+      // Post using the protected API instance
+      const res = await API.post(`${API_URL}/add`, formData);
       
-      // Update UI
       const updatedInventory = [res.data, ...inventory];
       setInventory(updatedInventory);
       calculateStats(updatedInventory);
       
-      // Reset Form & Close
+      // Reset and Close
       setFormData({ medicineName: '', category: '', quantity: '', price: '', expiryDate: '', manufacturer: '', minStock: '10' });
       setShowAddForm(false);
-      alert("Medicine added successfully!");
+      alert("Medicine added to your secure database!");
     } catch (err) {
-      alert("Error adding medicine. Check backend connection.");
+      console.error("Error adding medicine", err);
+      alert("Permission denied or server error.");
     }
   };
+
+  const filteredInventory = inventory.filter(m => 
+    m.medicineName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    m.category?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <Layout>
@@ -84,74 +97,80 @@ const Inventory = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tight">Inventory</h1>
-            <p className="text-slate-500 font-medium">Real-time stock monitoring and management.</p>
+            <p className="text-slate-500 font-medium">Manage your pharmacy's unique stock profile.</p>
           </div>
           <div className="flex gap-3">
              <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all">
-                <Download size={18} /> Export
+                <Download size={18} /> Export CSV
              </button>
              <button 
                 onClick={() => setShowAddForm(!showAddForm)}
                 className={`flex items-center gap-2 px-6 py-2.5 font-bold rounded-xl shadow-lg transition-all active:scale-95 ${
-                    showAddForm ? 'bg-slate-800 text-white' : 'bg-emerald-600 text-white shadow-emerald-500/20 hover:bg-emerald-700'
+                    showAddForm ? 'bg-slate-800 text-white shadow-none' : 'bg-emerald-600 text-white shadow-emerald-500/20 hover:bg-emerald-700'
                 }`}
              >
-                {showAddForm ? <><X size={20} /> Close</> : <><Plus size={20} /> Add Medicine</>}
+                {showAddForm ? <><X size={20} /> Cancel</> : <><Plus size={20} /> Add Medicine</>}
              </button>
           </div>
         </div>
 
-        {/* TOP STATS */}
+        {error && (
+            <div className="p-4 bg-orange-50 border border-orange-100 rounded-2xl flex items-center gap-3 text-orange-700 text-sm font-bold shadow-sm">
+                <AlertTriangle size={18} /> {error}
+            </div>
+        )}
+
+        {/* TOP BENTO STATS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatCard title="Total Products" value={stats.total} icon={<Package size={20}/>} color="emerald" trend="Live" />
-          <StatCard title="Low Stock Items" value={stats.lowStock} icon={<AlertCircle size={20}/>} color="orange" trend="Critical" />
-          <StatCard title="Inventory Value" value={`₹${stats.totalValue.toLocaleString()}`} icon={<DollarSign size={20}/>} color="emerald" trend="+4.2%" />
+          <StatCard title="Your Products" value={stats.total} icon={<Package size={20}/>} color="emerald" trend="Database Live" />
+          <StatCard title="Restock Required" value={stats.lowStock} icon={<AlertCircle size={20}/>} color="orange" trend="Critical" />
+          <StatCard title="Asset Valuation" value={`₹${stats.totalValue.toLocaleString()}`} icon={<DollarSign size={20}/>} color="emerald" trend="+1.2%" />
         </div>
 
-        {/* ADD MEDICINE FORM (SLIDE DOWN PANEL) */}
+        {/* ADD MEDICINE FORM - SLIDE PANEL */}
         {showAddForm && (
-          <div className="bg-white p-8 rounded-[32px] border-2 border-emerald-100 shadow-xl animate-in slide-in-from-top duration-500">
+          <div className="bg-white p-8 rounded-[32px] border-2 border-emerald-100 shadow-xl animate-in slide-in-from-top duration-500 relative z-20">
             <div className="flex items-center gap-3 mb-8">
                 <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
                     <Plus size={24} />
                 </div>
-                <h2 className="text-xl font-bold text-slate-800">Register New Inventory Item</h2>
+                <h2 className="text-xl font-black text-slate-800">Register New Inventory</h2>
             </div>
             
             <form onSubmit={handleFormSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="md:col-span-2">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Medicine Name</label>
+              <div className="md:col-span-2 space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Medicine Name</label>
                 <input name="medicineName" value={formData.medicineName} onChange={handleInputChange} required
-                       className="w-full px-5 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" placeholder="e.g. Paracetamol 500mg" />
+                       className="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" placeholder="e.g. Paracetamol 500mg" />
               </div>
-              <div>
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Category</label>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
                 <input name="category" value={formData.category} onChange={handleInputChange}
-                       className="w-full px-5 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" placeholder="e.g. Analgesic" />
+                       className="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" placeholder="Analgesic" />
               </div>
-              <div>
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Price (₹)</label>
-                <input name="price" type="number" value={formData.price} onChange={handleInputChange} required
-                       className="w-full px-5 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" placeholder="0.00" />
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Price (₹)</label>
+                <input name="price" type="number" step="0.01" value={formData.price} onChange={handleInputChange} required
+                       className="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" placeholder="0.00" />
               </div>
-              <div>
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Current Stock</label>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Quantity</label>
                 <input name="quantity" type="number" value={formData.quantity} onChange={handleInputChange} required
-                       className="w-full px-5 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" placeholder="100" />
+                       className="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" placeholder="100" />
               </div>
-              <div>
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Min. Stock Alert</label>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Min. Stock Alert</label>
                 <input name="minStock" type="number" value={formData.minStock} onChange={handleInputChange}
-                       className="w-full px-5 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" />
+                       className="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" />
               </div>
-              <div>
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Expiry Date</label>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Expiry Date</label>
                 <input name="expiryDate" type="date" value={formData.expiryDate} onChange={handleInputChange}
-                       className="w-full px-5 py-3 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" />
+                       className="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" />
               </div>
-              <div className="flex items-end">
-                <button type="submit" className="w-full py-3.5 bg-emerald-600 text-white font-black rounded-2xl hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all active:scale-95">
-                    <Save size={18} /> Save to Database
+              <div className="flex items-end md:col-span-1">
+                <button type="submit" className="w-full py-4 bg-emerald-600 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-emerald-700 shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all active:scale-95">
+                    <Save size={18} /> Confirm Entry
                 </button>
               </div>
             </form>
@@ -160,54 +179,59 @@ const Inventory = () => {
 
         {/* SEARCH BAR */}
         <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors" size={20} />
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-emerald-500 transition-colors" size={22} />
             <input
                 type="text"
-                placeholder="Filter by medicine name, manufacturer, or category..."
-                className="w-full pl-12 pr-4 py-4 bg-white border-none rounded-[24px] shadow-sm shadow-slate-200/50 focus:ring-4 focus:ring-emerald-500/5 text-sm font-medium transition-all"
+                placeholder="Search your inventory by name or category..."
+                className="w-full pl-14 pr-6 py-5 bg-white border-none rounded-[28px] shadow-sm shadow-slate-200/40 focus:ring-4 focus:ring-emerald-500/5 text-sm font-semibold transition-all placeholder:text-slate-300"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
             />
         </div>
 
         {/* INVENTORY TABLE */}
-        <div className="bg-white rounded-[32px] border border-slate-100 shadow-elite overflow-hidden">
+        <div className="bg-white rounded-[40px] border border-slate-100 shadow-xl shadow-slate-200/30 overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full text-left">
                     <thead className="border-b border-slate-50">
-                        <tr className="text-slate-400 text-[10px] uppercase tracking-[0.2em] font-black">
-                            <th className="px-8 py-6">Medicine</th>
-                            <th className="px-8 py-6">Category</th>
-                            <th className="px-8 py-6">Stock Status</th>
-                            <th className="px-8 py-6">Unit Price</th>
-                            <th className="px-8 py-6">Expiry</th>
-                            <th className="px-8 py-6 text-right">Actions</th>
+                        <tr className="text-slate-400 text-[10px] uppercase tracking-[0.25em] font-black">
+                            <th className="px-10 py-7">Product Detail</th>
+                            <th className="px-10 py-7">Category</th>
+                            <th className="px-10 py-7">Stock Status</th>
+                            <th className="px-10 py-7">Price</th>
+                            <th className="px-10 py-7">Expiry</th>
+                            <th className="px-10 py-7 text-right"></th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                         {isLoading ? (
-                            <tr><td colSpan="6" className="py-24 text-center"><Loader2 className="animate-spin mx-auto text-emerald-500" size={32} /></td></tr>
-                        ) : inventory.filter(m => m.medicineName?.toLowerCase().includes(searchQuery.toLowerCase())).map((item) => (
+                            <tr><td colSpan="6" className="py-32 text-center">
+                                <Loader2 className="animate-spin mx-auto text-emerald-500" size={40} />
+                                <p className="text-[10px] font-black text-slate-300 uppercase mt-4 tracking-widest">Accessing Encrypted Records</p>
+                            </td></tr>
+                        ) : filteredInventory.length === 0 ? (
+                            <tr><td colSpan="6" className="py-32 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">No Items in your Database</td></tr>
+                        ) : filteredInventory.map((item) => (
                             <tr key={item._id} className="hover:bg-slate-50/50 transition-colors group">
-                                <td className="px-8 py-5">
+                                <td className="px-10 py-6">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                            <Pill size={20} />
+                                        <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+                                            <Pill size={22} />
                                         </div>
                                         <div>
-                                            <p className="font-bold text-slate-900 text-sm">{item.medicineName}</p>
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{item.manufacturer || 'General'}</p>
+                                            <p className="font-bold text-slate-800 text-sm">{item.medicineName}</p>
+                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{item.manufacturer || 'General Catalog'}</p>
                                         </div>
                                     </div>
                                 </td>
-                                <td className="px-8 py-5 text-sm font-bold text-slate-500">{item.category}</td>
-                                <td className="px-8 py-5 min-w-[200px]">
+                                <td className="px-10 py-6 text-xs font-black text-slate-500 uppercase tracking-wider">{item.category}</td>
+                                <td className="px-10 py-6 min-w-[220px]">
                                     <div className="flex flex-col gap-2">
                                         <div className="flex justify-between items-end">
-                                            <span className={`text-[11px] font-black uppercase ${item.quantity <= (item.minStock || 10) ? 'text-red-500' : 'text-emerald-600'}`}>
+                                            <span className={`text-[11px] font-black uppercase tracking-widest ${item.quantity <= (item.minStock || 10) ? 'text-red-500' : 'text-emerald-600'}`}>
                                                 {item.quantity} Units
                                             </span>
-                                            <span className="text-[10px] text-slate-300 font-bold">Limit: {item.minStock}</span>
+                                            <span className="text-[9px] text-slate-300 font-bold">Min: {item.minStock}</span>
                                         </div>
                                         <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                                             <div 
@@ -217,10 +241,12 @@ const Inventory = () => {
                                         </div>
                                     </div>
                                 </td>
-                                <td className="px-8 py-5 font-black text-slate-900 text-sm">₹{item.price?.toFixed(2)}</td>
-                                <td className="px-8 py-5 text-slate-400 text-xs font-bold">{item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}</td>
-                                <td className="px-8 py-5 text-right">
-                                    <button className="p-2 text-slate-200 hover:text-slate-600 transition-colors">
+                                <td className="px-10 py-6 font-black text-slate-900 text-sm">₹{item.price?.toFixed(2)}</td>
+                                <td className="px-10 py-6 text-slate-400 text-[10px] font-black uppercase">
+                                    {item.expiryDate ? new Date(item.expiryDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '---'}
+                                </td>
+                                <td className="px-10 py-6 text-right">
+                                    <button className="p-2 text-slate-200 hover:text-slate-900 transition-colors">
                                         <MoreHorizontal size={20} />
                                     </button>
                                 </td>

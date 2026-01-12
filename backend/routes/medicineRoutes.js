@@ -1,4 +1,3 @@
-// routes/medicineRoutes.js
 import express from 'express';
 import {
   addMedicine,
@@ -8,14 +7,16 @@ import {
   searchMedicines,
   restockMedicine
 } from '../controllers/medicineController.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/add', addMedicine);
-router.get('/', getAllMedicines);
-router.get('/search', searchMedicines);
-router.get('/low-stock', getLowStockMedicines);
-router.patch('/update-stock', updateStockAfterBilling);
-router.patch('/:id/restock', restockMedicine);
+// All routes are now protected by the 'protect' middleware
+router.post('/add', protect, addMedicine);
+router.get('/', protect, getAllMedicines);
+router.get('/search', protect, searchMedicines);
+router.get('/low-stock', protect, getLowStockMedicines);
+router.patch('/update-stock', protect, updateStockAfterBilling);
+router.patch('/:id/restock', protect, restockMedicine);
 
 export default router;

@@ -7,6 +7,7 @@ const patientSchema = new mongoose.Schema({
     gender: String,
     symptoms: String,
     recommendedMedicines: Array,
+    userId : { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     date: { type: Date, default: Date.now }
 });
 

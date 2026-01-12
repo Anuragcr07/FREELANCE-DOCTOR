@@ -10,6 +10,7 @@ const medicineSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   category: { type: String },
   minStock: { type: Number, default: 10 },
+  userId : { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 }, {
   timestamps: true,
 });

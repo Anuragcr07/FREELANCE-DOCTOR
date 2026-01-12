@@ -13,23 +13,35 @@ const MedicineDB = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Helper to get the token from local storage
+  const getAuthHeader = () => {
+    const token = localStorage.getItem('token'); // Ensure you save it as 'token' on login
+    return { Authorization: `Bearer ${token}` };
+  };
+
   const fetchMedicines = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
+      const token = localStorage.getItem('token');
       const url = searchQuery
         ? `/api/medicines/search?q=${encodeURIComponent(searchQuery)}`
         : '/api/medicines/';
-      const response = await axios.get(url);
+      
+      // CRITICAL CHANGE: Sending the headers so the backend knows which user is asking
+      const response = await axios.get(url, {
+        headers: getAuthHeader()
+      });
+      
       setMedicines(response.data);
     } catch (err) {
-      setError('Database sync failed. Please refresh.');
-      // Mock data for design preview
-      setMedicines([
-        { _id: '1', medicineName: 'Paracetamol 500mg', manufacturer: 'GSK Pharma', price: 12.50, quantity: 45, minStock: 20, category: 'Analgesic', indications: 'Fever and pain relief', isRx: false },
-        { _id: '2', medicineName: 'Amoxicillin 250mg', manufacturer: 'Pfizer Inc', price: 180.00, quantity: 8, minStock: 25, category: 'Antibiotic', indications: 'Bacterial infections', isRx: true },
-        { _id: '3', medicineName: 'Cetirizine 10mg', manufacturer: 'Cipla Ltd', price: 45.20, quantity: 0, minStock: 10, category: 'Antihistamine', indications: 'Allergic rhinitis', isRx: false }
-      ]);
+      console.error("Fetch error:", err);
+      setError('Database sync failed. Please check your login session.');
+      
+      // Fallback Mock Data remains for UI preview
+      if (err.response?.status === 401) {
+          setError("Session expired. Please login again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -47,15 +59,20 @@ const MedicineDB = () => {
     if (isNaN(quantityToAdd) || quantityToAdd <= 0) return;
 
     try {
-      await axios.patch(`/api/medicines/${id}/restock`, { quantityToAdd });
+      // CRITICAL CHANGE: Sending headers for the Patch request too
+      await axios.patch(`/api/medicines/${id}/restock`, 
+        { quantityToAdd }, 
+        { headers: getAuthHeader() }
+      );
       fetchMedicines();
     } catch (err) {
-      alert("Update failed.");
+      alert("Update failed. You might not have permission to edit this item.");
     }
   };
 
   return (
     <Layout>
+      {/* ... Your existing JSX remains exactly the same ... */}
       <div className="p-8 max-w-7xl mx-auto space-y-8">
         
         {/* Header & Quick Insights */}
@@ -78,13 +95,13 @@ const MedicineDB = () => {
             <div className="bg-white px-4 py-2 rounded-2xl border border-slate-100 shadow-sm">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Critical</p>
                 <p className="text-lg font-bold text-red-500">
-                  {medicines.filter(m => m.quantity <= m.minStock).length}
+                  {medicines.filter(m => m.quantity <= (m.minStock || 10)).length}
                 </p>
             </div>
           </div>
         </div>
 
-        {/* Elite Search Bar */}
+        {/* Search Bar */}
         <div className="relative group">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-emerald-500 transition-colors" size={20} />
           <input 
@@ -94,9 +111,6 @@ const MedicineDB = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <div className="absolute right-5 top-1/2 -translate-y-1/2 bg-slate-100 px-2 py-1 rounded-lg">
-             <span className="text-[10px] font-black text-slate-400">⌘K</span>
-          </div>
         </div>
 
         {/* Medicine Grid */}
