@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import Layout from '../components/Layout';
 import StatCard from '../components/StatCard';
-import API from '../services/api'; // Ensure this uses your axios interceptor
+import API from '../services/api'; 
 
 const Revenue = () => {
   const [stats, setStats] = useState(null);

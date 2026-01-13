@@ -1,37 +1,33 @@
-
 import express from 'express';
-import Patient from '../models/Patient.js'; // You'll need a Patient model (schema)
+import Patient from '../models/Patient.js';
+import { protect } from '../middleware/authMiddleware.js'; // Import your middleware
 
 const router = express.Router();
 
-
-router.get('/', async (req, res) => {
+// GET: Fetch only MY patients
+router.get('/', protect, async (req, res) => {
     try {
         const { search } = req.query;
-        let query = {};
+        let query = { userId: req.user.id }; // Filter by User ID
+        
         if (search) {
-            query = {
-                $or: [
-                    { patientName: { $regex: search, $options: 'i' } },
-                    { 'recommendedMedicines.medicineName': { $regex: search, $options: 'i' } }
-                ]
-            };
+            query.$or = [
+                { patientName: { $regex: search, $options: 'i' } },
+                { 'recommendedMedicines.medicineName': { $regex: search, $options: 'i' } }
+            ];
         }
-        const patients = await Patient.find(query);
+        const patients = await Patient.find(query).sort({ date: -1 });
         res.json(patients);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
 
-
-router.post('/add', async (req, res) => {
+// POST: Add patient with User ID link
+router.post('/add', protect, async (req, res) => {
     const patient = new Patient({
-        patientName: req.body.patientName,
-        age: req.body.age,
-        gender: req.body.gender,
-        symptoms: req.body.symptoms,
-        recommendedMedicines: req.body.recommendedMedicines,
+        ...req.body,
+        userId: req.user.id // Automatically link to logged-in user
     });
 
     try {
