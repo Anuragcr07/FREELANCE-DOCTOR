@@ -22,5 +22,3 @@ export const analyzeSymptoms = async (req, res) => {
         res.status(500).json({ message: 'Server error', error });
     }
 };
-
-// No need for a separate export block at the end
