@@ -7,14 +7,7 @@ const Hero = () => {
     <section className="pt-20 pb-32 px-4 max-w-7xl mx-auto">
       <div className="grid lg:grid-cols-2 gap-16 items-center">
         <div className="text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 mb-8">
-            <Sparkles className="w-4 h-4 text-emerald-600" />
-            <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
-              Now with AI-powered insights
-            </span>
-            <ArrowRight className="w-3 h-3 text-emerald-400" />
-          </div>
-
+  
           <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.05] mb-8">
             Efficient Medical Store <br />
             <span className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">Management.</span>
@@ -25,19 +18,9 @@ const Hero = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-6">
-            <Link
-              to="/signup"
-              className="w-full sm:w-auto px-10 py-4 bg-emerald-600 text-white font-bold rounded-xl shadow-xl shadow-emerald-100 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 group"
-            >
-              Start Free Trial <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
+        
 
-            <button className="w-full sm:w-auto px-10 py-4 text-slate-400 font-bold flex items-center justify-center gap-3 hover:text-slate-600 transition-colors">
-              <div className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center bg-white shadow-sm">
-                 <Play className="w-4 h-4 fill-current ml-1" />
-              </div>
-              Watch Demo
-            </button>
+          
           </div>
         </div>
 

@@ -2,7 +2,6 @@ import React from 'react';
 import NavigationBar from '../ui/NavigationBar';
 import Hero from '../ui/Hero';
 import Features from '../ui/Features';
-import Testimonials from '../ui/Testimonials';
 import Footer from '../ui/Footer';
 
 const LandingPage = () => {
@@ -21,11 +20,7 @@ const LandingPage = () => {
           <Features />
         </div>
 
-        {/* Testimonials Section with Grid Pattern */}
-        <div className="py-24 bg-slate-50/50 relative">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]" />
-          <Testimonials />
-        </div>
+       
       </main>
       <Footer />
     </div>

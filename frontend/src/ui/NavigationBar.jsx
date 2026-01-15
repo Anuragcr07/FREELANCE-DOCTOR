@@ -18,9 +18,7 @@ const NavigationBar = () => {
 
           <div className="hidden md:flex items-center gap-10">
             <a href="#features" className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors">Features</a>
-            <a href="#testimonials" className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors">Testimonials</a>
-            <a href="#pricing" className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors">Pricing</a>
-            
+            <a href='#Footer' className="text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors">Contact</a>
             <div className="flex items-center gap-4 ml-4">
               <Link to="/login" className="text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors px-4">
                 Sign In
