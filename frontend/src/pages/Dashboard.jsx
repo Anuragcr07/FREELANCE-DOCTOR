@@ -85,10 +85,10 @@ const Dashboard = () => {
               </button>
               
               <button onClick={() => navigate('/billing')} className="flex items-center gap-2 px-4 py-2.5 text-slate-600 hover:bg-slate-50 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
-                <FileText size={16} className="text-emerald-500" /> POS Bill
+                <FileText size={16} className="text-emerald-500" /> GENERATE Bill
               </button>
               
-              <button onClick={() => navigate('/inventory')} className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg active:scale-95">
+              <button onClick={() => navigate('/inventory')} className="flex items-center gap-2 px-4 py-2.5 text-slate-600 hover:bg-slate-50 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
                 <Plus size={16} /> New Entry
               </button>
             </div>
@@ -113,7 +113,7 @@ const Dashboard = () => {
               color="emerald"
             />
             <StatCard 
-              title="Unique SKU" 
+              title="Unique Products" 
               value={stats.totalMedicines} 
               trend="Inventory" 
               subtitle="Total Products"
@@ -121,7 +121,7 @@ const Dashboard = () => {
               color="emerald"
             />
             <StatCard 
-              title="Alert Queue" 
+              title="Alert Status" 
               value={stats.lowStockCount} 
               trend="Urgent" 
               subtitle="Critical Levels"

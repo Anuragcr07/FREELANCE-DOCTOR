@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import { Pill, Mail, Lock, Loader2, ArrowRight, ShieldCheck } from 'lucide-react';
+// ADDED AlertCircle to the line below
+import { Pill, Mail, Lock, Loader2, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
@@ -15,8 +16,8 @@ const Login = () => {
         setStatus({ type: '', message: '' });
 
         try {
-            // Updated to your local backend
-            const res = await axios.post('http://localhost:5000/api/auth/login', formData);
+            // Using /api prefix to work with your Vite Proxy
+            const res = await axios.post('/api/auth/login', formData);
             
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('user', JSON.stringify(res.data.result));
@@ -38,7 +39,7 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] relative overflow-hidden font-sans">
+        <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] relative overflow-hidden font-sans text-slate-900">
             {/* Background Decorative Elements */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-emerald-50/50 rounded-full blur-3xl -z-10" />
@@ -90,7 +91,7 @@ const Login = () => {
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center ml-1">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Password</label>
-                                    <Link to="/forgot-password" size={10} className="text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:underline">Forgot?</Link>
+                                    <Link to="/forgot-password" className="text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:underline">Forgot?</Link>
                                 </div>
                                 <div className="relative group">
                                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-emerald-500 transition-colors" size={18} />
@@ -105,15 +106,10 @@ const Login = () => {
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-3 ml-1">
-                            <input id="remember-me" type="checkbox" className="w-4 h-4 text-emerald-600 border-slate-200 rounded-md focus:ring-emerald-500" />
-                            <label htmlFor="remember-me" className="text-xs font-bold text-slate-500 uppercase tracking-tight cursor-pointer">Stay logged in</label>
-                        </div>
-
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`w-full flex items-center justify-center gap-2 py-4 px-4 bg-emerald-600 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-emerald-500/20 hover:bg-emerald-700 transition-all active:scale-95 group ${
+                            className={`w-full flex items-center justify-center gap-2 py-4 px-4 bg-emerald-600 text-black font-black text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-emerald-500/20 hover:bg-emerald-700 transition-all active:scale-95 group ${
                                 loading ? 'opacity-70 cursor-not-allowed' : ''
                             }`}
                         >

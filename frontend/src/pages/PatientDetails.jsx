@@ -50,7 +50,7 @@ const PatientDetails = () => {
                         </h1>
                         <p className="text-slate-500 mt-2 font-medium">Securely access and manage your clinic's patient history.</p>
                     </div>
-                    <button className="flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-emerald-500/20 hover:bg-emerald-700 transition-all active:scale-95">
+                    <button className="flex items-center gap-2 px-6 py-3 bg-emerald-600 text-Black font-black text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-emerald-500/20 hover:bg-emerald-700 transition-all active:scale-95">
                         <Plus size={18} />
                         Register New Patient
                     </button>

@@ -170,7 +170,7 @@ const SymptomAnalysis = () => {
                                 <button 
                                     onClick={handleSavePatient} 
                                     disabled={!patientName || selectedMedicines.length === 0} 
-                                    className="w-full flex items-center justify-center gap-3 px-6 py-5 bg-emerald-600 text-white font-black text-xs uppercase tracking-[0.25em] rounded-[24px] shadow-xl shadow-emerald-500/20 hover:bg-emerald-700 transition-all disabled:opacity-20 active:scale-95"
+                                    className="w-full flex items-center justify-center gap-3 px-6 py-5 bg-emerald-600 text-black font-black text-xs uppercase tracking-[0.25em] rounded-[24px] shadow-xl shadow-emerald-500/20 hover:bg-emerald-700 transition-all disabled:opacity-20 active:scale-95"
                                 >
                                     <Save size={20} /> Commit Analysis
                                 </button>

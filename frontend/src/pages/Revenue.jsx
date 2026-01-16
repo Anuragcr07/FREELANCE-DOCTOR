@@ -70,14 +70,7 @@ const Revenue = () => {
             </h1>
             <p className="text-slate-500 font-medium mt-2">Analytical overview of your store's economic growth.</p>
           </div>
-          <div className="flex gap-3">
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-600 font-bold text-sm rounded-xl hover:bg-slate-50 transition-all shadow-sm">
-                <Download size={18} /> Export PDF
-            </button>
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-bold text-sm rounded-xl hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 transition-all">
-                <TrendingUp size={18} /> Forecast
-            </button>
-          </div>
+        
         </div>
 
         {error && (
@@ -168,9 +161,7 @@ const Revenue = () => {
                         <h3 className="font-bold text-slate-900 text-lg tracking-tight">Recent Sales</h3>
                         <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">Terminal Activity</p>
                     </div>
-                    <button className="w-8 h-8 rounded-full bg-slate-50 text-slate-300 flex items-center justify-center hover:bg-emerald-50 hover:text-emerald-500 transition-all">
-                        <ArrowRight size={16} />
-                    </button>
+
                 </div>
 
                 <div className="space-y-8 min-h-[400px]">

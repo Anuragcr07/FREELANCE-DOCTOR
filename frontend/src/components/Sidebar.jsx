@@ -46,14 +46,7 @@ const Sidebar = () => {
         ))}
       </nav>
 
-      <div className="mt-auto p-4 bg-emerald-50/50 rounded-2xl border border-emerald-50">
-        <p className="text-[10px] font-bold text-emerald-600 mb-1 uppercase tracking-wider">Need help?</p>
-        <p className="text-[10px] text-slate-500 mb-3 leading-relaxed">Check documentation for quick answers.</p>
-        <div className="flex justify-between items-center">
-          <HelpCircle size={16} className="text-emerald-400" />
-          <span className="text-[10px] font-bold text-emerald-600 underline cursor-pointer">Support</span>
-        </div>
-      </div>
+    
     </aside>
   );
 };

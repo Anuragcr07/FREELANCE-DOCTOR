@@ -244,7 +244,7 @@ const Billing = () => {
                     Generate & Sync <ArrowRight size={20} />
                   </button>
                   <div className="flex gap-3">
-                    <button onClick={handleSaveOnly} disabled={billItems.length === 0} className="flex-1 bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-widest py-4 rounded-2xl transition-all disabled:opacity-20">
+                    <button onClick={handleSaveOnly} disabled={billItems.length === 0} className="flex-1 bg-white/5 hover:bg-white/10 text-blue-900 text-[10px] font-black uppercase tracking-widest py-4 rounded-2xl transition-all disabled:opacity-20">
                        Save Record
                     </button>
                     <button onClick={() => setBillItems([])} className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px] font-black uppercase tracking-widest py-4 rounded-2xl transition-all">

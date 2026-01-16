@@ -100,13 +100,10 @@ const Inventory = () => {
             <p className="text-slate-500 font-medium">Manage your pharmacy's unique stock profile.</p>
           </div>
           <div className="flex gap-3">
-             <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all">
-                <Download size={18} /> Export CSV
-             </button>
              <button 
                 onClick={() => setShowAddForm(!showAddForm)}
                 className={`flex items-center gap-2 px-6 py-2.5 font-bold rounded-xl shadow-lg transition-all active:scale-95 ${
-                    showAddForm ? 'bg-slate-800 text-white shadow-none' : 'bg-emerald-600 text-white shadow-emerald-500/20 hover:bg-emerald-700'
+                    showAddForm ? 'bg-slate-800 text-white shadow-none' : 'bg-emerald-600 text-black shadow-emerald-500/20 hover:bg-emerald-700'
                 }`}
              >
                 {showAddForm ? <><X size={20} /> Cancel</> : <><Plus size={20} /> Add Medicine</>}
