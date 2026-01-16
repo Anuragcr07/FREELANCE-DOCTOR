@@ -87,7 +87,6 @@ const PatientDetails = () => {
                                     <th className="px-10 py-7">Identity</th>
                                     <th className="px-10 py-7">Contact Info</th>
                                     <th className="px-10 py-7">Medical Recommendation</th>
-                                    <th className="px-10 py-7 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
@@ -168,16 +167,7 @@ const PatientDetails = () => {
                                         </td>
 
                                         {/* Actions Column */}
-                                        <td className="px-10 py-6 text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button className="p-2 text-slate-200 hover:text-emerald-500 transition-colors">
-                                                    <ChevronRight size={22} />
-                                                </button>
-                                                <button className="p-2 text-slate-200 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
-                                                    <Trash2 size={18} />
-                                                </button>
-                                            </div>
-                                        </td>
+                                      
                                     </tr>
                                 ))}
                             </tbody>

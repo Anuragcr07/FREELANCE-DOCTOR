@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { 
   Package, AlertCircle, DollarSign, Search, 
   Filter, Plus, MoreHorizontal, Pill, 
-  Download, Loader2, X, Save, AlertTriangle
+  Download, Loader2, X, Save, AlertTriangle, Hash
 } from 'lucide-react';
 import Layout from '../components/Layout';
 import StatCard from '../components/StatCard';
-import API from '../services/api'; // Ensure this file exists with the JWT interceptor
+import API from '../services/api'; 
 
 const Inventory = () => {
   const [inventory, setInventory] = useState([]);
@@ -16,7 +16,6 @@ const Inventory = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [error, setError] = useState(null);
 
-  // Form State matching your Backend Schema
   const [formData, setFormData] = useState({
     medicineName: '',
     category: '',
@@ -24,6 +23,7 @@ const Inventory = () => {
     price: '',
     expiryDate: '',
     manufacturer: '',
+    batchNumber: '', // Added Batch Number
     minStock: '10'
   });
 
@@ -37,7 +37,6 @@ const Inventory = () => {
     setIsLoading(true);
     setError(null);
     try {
-      // Using 'API' ensures the Authorization Header is attached
       const res = await API.get(API_URL);
       setInventory(res.data);
       calculateStats(res.data);
@@ -67,15 +66,12 @@ const Inventory = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Post using the protected API instance
       const res = await API.post(`${API_URL}/add`, formData);
-      
       const updatedInventory = [res.data, ...inventory];
       setInventory(updatedInventory);
       calculateStats(updatedInventory);
       
-      // Reset and Close
-      setFormData({ medicineName: '', category: '', quantity: '', price: '', expiryDate: '', manufacturer: '', minStock: '10' });
+      setFormData({ medicineName: '', category: '', quantity: '', price: '', expiryDate: '', manufacturer: '', batchNumber: '', minStock: '10' });
       setShowAddForm(false);
       alert("Medicine added to your secure database!");
     } catch (err) {
@@ -86,6 +82,7 @@ const Inventory = () => {
 
   const filteredInventory = inventory.filter(m => 
     m.medicineName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    m.batchNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     m.category?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -103,7 +100,7 @@ const Inventory = () => {
              <button 
                 onClick={() => setShowAddForm(!showAddForm)}
                 className={`flex items-center gap-2 px-6 py-2.5 font-bold rounded-xl shadow-lg transition-all active:scale-95 ${
-                    showAddForm ? 'bg-slate-800 text-white shadow-none' : 'bg-emerald-600 text-black shadow-emerald-500/20 hover:bg-emerald-700'
+                    showAddForm ? 'bg-slate-800 text-black shadow-none' : 'bg-emerald-600 text-black shadow-emerald-500/20 hover:bg-emerald-700'
                 }`}
              >
                 {showAddForm ? <><X size={20} /> Cancel</> : <><Plus size={20} /> Add Medicine</>}
@@ -124,7 +121,7 @@ const Inventory = () => {
           <StatCard title="Asset Valuation" value={`₹${stats.totalValue.toLocaleString()}`} icon={<DollarSign size={20}/>} color="emerald" trend="+1.2%" />
         </div>
 
-        {/* ADD MEDICINE FORM - SLIDE PANEL */}
+        {/* ADD MEDICINE FORM */}
         {showAddForm && (
           <div className="bg-white p-8 rounded-[32px] border-2 border-emerald-100 shadow-xl animate-in slide-in-from-top duration-500 relative z-20">
             <div className="flex items-center gap-3 mb-8">
@@ -139,6 +136,11 @@ const Inventory = () => {
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Medicine Name</label>
                 <input name="medicineName" value={formData.medicineName} onChange={handleInputChange} required
                        className="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" placeholder="e.g. Paracetamol 500mg" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Batch Number</label>
+                <input name="batchNumber" value={formData.batchNumber} onChange={handleInputChange} required
+                       className="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold uppercase" placeholder="e.g. BT1029X" />
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
@@ -166,7 +168,7 @@ const Inventory = () => {
                        className="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-emerald-500/5 transition-all text-sm font-bold" />
               </div>
               <div className="flex items-end md:col-span-1">
-                <button type="submit" className="w-full py-4 bg-emerald-600 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-emerald-700 shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all active:scale-95">
+                <button type="submit" className="w-full py-4 bg-emerald-600 text-black font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-emerald-700 shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all active:scale-95">
                     <Save size={18} /> Confirm Entry
                 </button>
               </div>
@@ -179,21 +181,21 @@ const Inventory = () => {
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-emerald-500 transition-colors" size={22} />
             <input
                 type="text"
-                placeholder="Search your inventory by name or category..."
-                className="w-full pl-14 pr-6 py-5 bg-white border-none rounded-[28px] shadow-sm shadow-slate-200/40 focus:ring-4 focus:ring-emerald-500/5 text-sm font-semibold transition-all placeholder:text-slate-300"
+                placeholder="Search by name, category, or batch number..."
+                className="w-full pl-14 pr-6 py-5 bg-white border-none rounded-[28px] shadow-sm focus:ring-4 focus:ring-emerald-500/5 text-sm font-semibold transition-all"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
             />
         </div>
 
         {/* INVENTORY TABLE */}
-        <div className="bg-white rounded-[40px] border border-slate-100 shadow-xl shadow-slate-200/30 overflow-hidden">
+        <div className="bg-white rounded-[40px] border border-slate-100 shadow-xl overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full text-left">
                     <thead className="border-b border-slate-50">
                         <tr className="text-slate-400 text-[10px] uppercase tracking-[0.25em] font-black">
                             <th className="px-10 py-7">Product Detail</th>
-                            <th className="px-10 py-7">Category</th>
+                            <th className="px-10 py-7">Batch No.</th>
                             <th className="px-10 py-7">Stock Status</th>
                             <th className="px-10 py-7">Price</th>
                             <th className="px-10 py-7">Expiry</th>
@@ -202,12 +204,9 @@ const Inventory = () => {
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                         {isLoading ? (
-                            <tr><td colSpan="6" className="py-32 text-center">
-                                <Loader2 className="animate-spin mx-auto text-emerald-500" size={40} />
-                                <p className="text-[10px] font-black text-slate-300 uppercase mt-4 tracking-widest">Accessing Encrypted Records</p>
-                            </td></tr>
+                            <tr><td colSpan="6" className="py-32 text-center"><Loader2 className="animate-spin mx-auto text-emerald-500" size={40} /></td></tr>
                         ) : filteredInventory.length === 0 ? (
-                            <tr><td colSpan="6" className="py-32 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">No Items in your Database</td></tr>
+                            <tr><td colSpan="6" className="py-32 text-center text-slate-400 font-bold text-xs uppercase tracking-widest">Database Empty</td></tr>
                         ) : filteredInventory.map((item) => (
                             <tr key={item._id} className="hover:bg-slate-50/50 transition-colors group">
                                 <td className="px-10 py-6">
@@ -217,18 +216,22 @@ const Inventory = () => {
                                         </div>
                                         <div>
                                             <p className="font-bold text-slate-800 text-sm">{item.medicineName}</p>
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{item.manufacturer || 'General Catalog'}</p>
+                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{item.category}</p>
                                         </div>
                                     </div>
                                 </td>
-                                <td className="px-10 py-6 text-xs font-black text-slate-500 uppercase tracking-wider">{item.category}</td>
-                                <td className="px-10 py-6 min-w-[220px]">
+                                <td className="px-10 py-6">
+                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                        <Hash size={10} /> {item.batchNumber || '---'}
+                                    </div>
+                                </td>
+                                <td className="px-10 py-6 min-w-[200px]">
                                     <div className="flex flex-col gap-2">
                                         <div className="flex justify-between items-end">
                                             <span className={`text-[11px] font-black uppercase tracking-widest ${item.quantity <= (item.minStock || 10) ? 'text-red-500' : 'text-emerald-600'}`}>
                                                 {item.quantity} Units
                                             </span>
-                                            <span className="text-[9px] text-slate-300 font-bold">Min: {item.minStock}</span>
+                                            <span className="text-[9px] text-slate-300 font-bold">Limit: {item.minStock}</span>
                                         </div>
                                         <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                                             <div 
