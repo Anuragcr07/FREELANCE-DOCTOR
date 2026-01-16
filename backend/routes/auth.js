@@ -88,4 +88,87 @@ router.get('/verify/:token', async (req, res) => {
   }
 });
 
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "Email not found." });
+
+    // 1. Generate plain text token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    // 2. Hash it and save to DB
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpire = Date.now() + 3600000; // 1 hour
+    await user.save();
+
+    // DEBUG LOG 1
+    console.log("----------------------------");
+    console.log("FORGOT PASSWORD CALLED");
+    console.log("Plain Token sent to email:", resetToken);
+    console.log("Hashed Token saved to DB:", hashedToken);
+
+    const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
+    
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+    });
+
+    await transporter.sendMail({
+      to: user.email,
+      subject: 'Password Reset Request',
+      html: `<h3>MedFlow Password Reset</h3><p>Click <a href="${resetUrl}">here</a> to reset. Link expires in 1 hour.</p>`
+    });
+
+    res.json({ message: "Reset link sent to email." });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// --- RESET PASSWORD ---
+router.post('/reset-password/:token', async (req, res) => {
+  try {
+    const plainTokenFromUrl = req.params.token;
+    
+    // 1. Hash the token coming from the URL
+    const hashedTokenFromUrl = crypto.createHash('sha256').update(plainTokenFromUrl).digest('hex');
+
+    // DEBUG LOG 2
+    console.log("----------------------------");
+    console.log("RESET PASSWORD CALLED");
+    console.log("Token from URL:", plainTokenFromUrl);
+    console.log("Hash of URL Token:", hashedTokenFromUrl);
+
+    // 2. Search for user with matching hash and valid time
+    const user = await User.findOne({
+      resetPasswordToken: hashedTokenFromUrl,
+      resetPasswordExpire: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      console.log("MATCH FAILED: No user found with this hash or token expired.");
+      return res.status(400).json({ message: "Invalid or expired token. Request a new link." });
+    }
+
+    console.log("MATCH SUCCESS: User found:", user.email);
+
+    // 3. Update Password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(req.body.password, salt);
+    
+    // 4. Clear reset fields
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    res.json({ message: "Password updated successfully!" });
+  } catch (err) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 export default router;

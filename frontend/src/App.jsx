@@ -12,6 +12,8 @@ import Landingpage from './pages/landingpage';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import VerifyEmail from './pages/VerifyEmail';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 
 function App() {
@@ -34,6 +36,8 @@ function App() {
               <Route path="/patient-details" element={<PatientDetails />} />
               <Route path="/Billing" element={<Billing />} />
               <Route path="/verify-email/:token" element={<VerifyEmail />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
             </Routes>
           </main>
         </div>
