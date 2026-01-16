@@ -21,7 +21,7 @@ const app = express();
 const __dirname = path.resolve();
 
 const corsOptions = {
-  origin: ["http://localhost:5173", "https://freelance-doctor-7.onrender.com"],
+  origin: ["http://localhost:5173", "https://freelance-doctor-medical-01.onrender.com"],
   credentials: true,
   optionSuccessStatus: 200,
 };
