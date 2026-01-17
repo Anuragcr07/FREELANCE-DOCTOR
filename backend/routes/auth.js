@@ -38,7 +38,7 @@ router.post('/signup', async (req, res) => {
       },
     });
 
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl ='https://freelance-doctor-yfwt.onrender.com';
     const url = `${frontendUrl}/verify-email/${token}`;
 
     await transporter.sendMail({
@@ -110,7 +110,7 @@ router.post('/forgot-password', async (req, res) => {
     console.log("Plain Token sent to email:", resetToken);
     console.log("Hashed Token saved to DB:", hashedToken);
 
-    const resetUrl = `https://freelance-doctor-medical-01.onrender.com/reset-password/${resetToken}`;
+    const resetUrl = `https://freelance-doctor-yfwt.onrender.com/reset-password/${resetToken}`;
     
     const transporter = nodemailer.createTransport({
       service: 'gmail',
