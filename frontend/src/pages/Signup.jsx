@@ -12,7 +12,7 @@ const Signup = () => {
         setLoading(true);
         try {
             // Adjust the URL to your deployed backend or localhost
-            const res = await axios.post('https://freelance-doctor-medical.onrender.com/api/auth/signup', formData);
+            const res = await axios.post('http://localhost:5000/api/auth/signup', formData);
             setStatus({ type: 'success', message: res.data.message });
         } catch (err) {
             setStatus({ 
